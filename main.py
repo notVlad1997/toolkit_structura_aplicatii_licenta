@@ -1,11 +1,9 @@
 import tkinter
 from tkinter import ttk
-
-
 class App(tkinter.Frame):
     def __init__(self, master):
         super().__init__(master)
-        self.pack()
+        self.config(width=600, height=600)
 
         self.button = ttk.Button(self, text="Create button!")
         self.button.grid(column=0, row=0)
@@ -20,5 +18,6 @@ class App(tkinter.Frame):
 
 
 root = tkinter.Tk()
+root.minsize(width=600, height=600)
 myapp = App(root)
 myapp.mainloop()
