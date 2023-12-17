@@ -13,9 +13,6 @@ class FrameWindow(tk.Frame):
 
         self.interior_frame.place(relx=0.5, rely=0.5, anchor="center")
 
-        # self.interior_canvas = tk.Canvas(self.interior_frame, width=500, height=500)
-        # self.interior_canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-
         self.title_button_bar = tk.Frame(self.interior_frame, height=15, relief="raised")
         self.title_button_bar.pack(fill="x")
         self.title_button_bar.pack_propagate(False)
@@ -31,12 +28,3 @@ class FrameWindow(tk.Frame):
         self.separator = tk.Frame(self.interior_frame, height=2, relief="sunken",background="gray")
         self.separator.pack(side="top", fill="x", pady=2)
 
-        self.rows=0
-
-    def add(self, element):
-        self.interior_canvas.create_window((20, 10 + (self.rows - 1) * 30), window=element, anchor="nw")
-
-        self.interior_canvas.update_idletasks()
-        self.interior_canvas.config(scrollregion=self.interior_canvas.bbox("all"))
-
-        self.rows += 1
