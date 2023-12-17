@@ -32,17 +32,12 @@ class MainFrame(tk.Frame):
         left_pane.add(top_left_pane, minsize=200)
         left_pane.add(bottom_left_pane, minsize=200)
 
-        self.create_buttons(bottom_left_pane, top_left_pane)
-
-        #middle_pane = tk.Frame(self.main_pane)
         middle_pane = FrameWindow(self.main_pane)
         self.main_pane.add(middle_pane, minsize=600)
 
-
         right_pane = tk.PanedWindow(self.main_pane, orient=tk.VERTICAL, sashrelief=tk.RAISED, sashwidth=7)
         self.main_pane.add(right_pane, minsize=100)
-        right_pane.pack_propagate(
-            False)  # Nu permite barei de titlu să-și ajusteze dimensiunile în funcție de conținut
+        right_pane.pack_propagate(False)
 
         top_right_pane = tk.Canvas(right_pane, width=500, height=500)
         scrollbar = tk.Scrollbar(top_right_pane, command=top_right_pane.yview)
@@ -54,18 +49,38 @@ class MainFrame(tk.Frame):
         right_pane.add(top_right_pane, minsize=200)
         right_pane.add(bottom_right_pane, minsize=200)
 
-    def create_buttons(self, window, window1):
-        button = tk.Button(window, text="Create button!", command=lambda: self.create_button(window1))
+        tk.Label(bottom_right_pane, text="Culoare:").grid(row=0, column=0, padx=5, pady=5)
+        culoare_entry = tk.Entry(bottom_right_pane)
+        culoare_entry.grid(row=0, column=1, padx=5, pady=5)
+
+        tk.Label(bottom_right_pane, text="Text:").grid(row=1, column=0, padx=5, pady=5)
+        text_entry = tk.Entry(bottom_right_pane)
+        text_entry.grid(row=1, column=1, padx=5, pady=5)
+
+        buton_modificare = tk.Button(bottom_right_pane, text="Modifică", command=self.modify)
+        buton_modificare.grid(row=2, columnspan=2, pady=10)
+
+        self.create_buttons(bottom_left_pane, middle_pane.interior_frame, top_right_pane)
+
+    def create_buttons(self, window, window1, window2):
+        button = tk.Button(window, text="Create button!", command=lambda: self.create_button(window1, window2))
         button.pack(pady=10, padx=10)
 
-    def create_button(self, canvas):
-        button1 = tk.Button(canvas, text=f"Created button{self.rows}!")
-        canvas.create_window((20, 10 + (self.rows - 1) * 30), window=button1, anchor="nw")
-
-        canvas.update_idletasks()
-        canvas.config(scrollregion=canvas.bbox("all"))
+    def create_button(self, window, layer):
+        button1 = tk.Button(window, text=f"Created button{self.rows}!")
+        button1.pack(side=tk.TOP)
+        button2 = tk.Button(layer, text=f"Layer button{self.rows}!")
+        button2.pack(side=tk.TOP)
+        #canvas.add(button1)
+        # canvas.create_window((20, 10 + (self.rows - 1) * 30), window=button1, anchor="nw")
+        #
+        # canvas.update_idletasks()
+        # canvas.config(scrollregion=canvas.bbox("all"))
 
         self.rows += 1
+
+    def modify(self):
+        print("TO DO")
 
     def create_menu(self):
         menubar = tk.Menu(self.master)
