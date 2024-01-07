@@ -6,8 +6,15 @@ from ui.window import FrameWindow
 class MainFrame(tk.Frame):
     def __init__(self, master):
         super().__init__(master)
-        self.main_pane = None
         self.master = master
+
+        self.main_pane = None
+        self.category_pane = None
+        self.component_pane = None
+        self.window = None
+        self.layer_pane = None
+        self.properties_pane = None
+
         self.config(width=600, height=600)
         self.create_widgets()
         self.pack(fill=tk.BOTH, expand=True)
@@ -15,67 +22,68 @@ class MainFrame(tk.Frame):
 
         self.create_menu()
 
-    def create_widgets(self):
-        self.main_pane = tk.PanedWindow(self, orient=tk.HORIZONTAL, sashrelief=tk.SUNKEN, sashwidth=7)
-        self.main_pane.pack(fill=tk.BOTH, expand=True)
-
+    def create_components_panel(self):
         left_pane = tk.PanedWindow(self.main_pane, orient=tk.VERTICAL, sashrelief=tk.RAISED, sashwidth=7)
         self.main_pane.add(left_pane, minsize=200)
 
-        top_left_pane = tk.Canvas(left_pane, width=500, height=500)
-        scrollbar = tk.Scrollbar(top_left_pane, command=top_left_pane.yview)
-        top_left_pane.config(yscrollcommand=scrollbar.set, scrollregion=(0, 0, 0, 2000))
-        top_left_pane.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        self.category_pane = tk.Canvas(left_pane, width=500, height=500)
+        scrollbar = tk.Scrollbar(self.category_pane, command=self.category_pane.yview)
+        self.category_pane.config(yscrollcommand=scrollbar.set, scrollregion=(0, 0, 0, 2000))
+        self.category_pane.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
-        bottom_left_pane = tk.Frame(left_pane)
-        left_pane.add(top_left_pane, minsize=200)
-        left_pane.add(bottom_left_pane, minsize=200)
+        self.component_pane = tk.Frame(left_pane)
+        left_pane.add(self.category_pane, minsize=200)
+        left_pane.add(self.component_pane, minsize=200)
 
-        middle_pane = FrameWindow(self.main_pane)
-        self.main_pane.add(middle_pane, minsize=600)
+    def create_widgets(self):
+        self.main_pane = tk.PanedWindow(self, orient=tk.HORIZONTAL, sashrelief=tk.SUNKEN, sashwidth=7)
+        self.main_pane.pack(fill=tk.BOTH, expand=True)
+        self.create_components_panel()
+
+        middle_pane = tk.PanedWindow(self.main_pane, orient=tk.VERTICAL, sashrelief=tk.RAISED, sashwidth=7)
+        self.main_pane.add(middle_pane, minsize=200)
+        middle_pane.pack_propagate(False)
+
+        self.window = FrameWindow(master=middle_pane)
+        middle_pane.add(self.window, minsize=200)
 
         right_pane = tk.PanedWindow(self.main_pane, orient=tk.VERTICAL, sashrelief=tk.RAISED, sashwidth=7)
         self.main_pane.add(right_pane, minsize=100)
         right_pane.pack_propagate(False)
 
-        top_right_pane = tk.Canvas(right_pane, width=500, height=500)
-        scrollbar = tk.Scrollbar(top_right_pane, command=top_right_pane.yview)
-        top_right_pane.config(yscrollcommand=scrollbar.set, scrollregion=(0, 0, 0, 2000))
-        top_right_pane.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        self.layer_pane = tk.Canvas(right_pane, width=500, height=500)
+        scrollbar = tk.Scrollbar(self.layer_pane, command=self.layer_pane.yview)
+        self.layer_pane.config(yscrollcommand=scrollbar.set, scrollregion=(0, 0, 0, 2000))
+        self.layer_pane.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
-        bottom_right_pane = tk.Frame(right_pane)
-        right_pane.add(top_right_pane, minsize=200)
-        right_pane.add(bottom_right_pane, minsize=200)
+        self.properties_pane = tk.Frame(right_pane)
+        right_pane.add(self.layer_pane, minsize=200)
+        right_pane.add(self.properties_pane, minsize=200)
 
-        tk.Label(bottom_right_pane, text="Culoare:").grid(row=0, column=0, padx=5, pady=5)
-        culoare_entry = tk.Entry(bottom_right_pane)
-        culoare_entry.grid(row=0, column=1, padx=5, pady=5)
+        # tk.Label(properties_pane, text="Culoare:").grid(row=0, column=0, padx=5, pady=5)
+        # culoare_entry = tk.Entry(properties_pane)
+        # culoare_entry.grid(row=0, column=1, padx=5, pady=5)
+        #
+        # tk.Label(properties_pane, text="Text:").grid(row=1, column=0, padx=5, pady=5)
+        # text_entry = tk.Entry(properties_pane)
+        # text_entry.grid(row=1, column=1, padx=5, pady=5)
 
-        tk.Label(bottom_right_pane, text="Text:").grid(row=1, column=0, padx=5, pady=5)
-        text_entry = tk.Entry(bottom_right_pane)
-        text_entry.grid(row=1, column=1, padx=5, pady=5)
+        # buton_modificare = tk.Button(properties_pane, text="Modifică", command=self.modify)
+        # buton_modificare.grid(row=2, columnspan=2, pady=10)
 
-        buton_modificare = tk.Button(bottom_right_pane, text="Modifică", command=self.modify)
-        buton_modificare.grid(row=2, columnspan=2, pady=10)
+        self.create_buttons(self.component_pane, self.window.interior_frame, self.layer_pane)
 
-        self.create_buttons(bottom_left_pane, middle_pane.interior_frame, top_right_pane)
-
-    def create_buttons(self, window, window1, window2):
-        button = tk.Button(window, text="Create button!", command=lambda: self.create_button(window1, window2))
+    def create_buttons(self, window, window1, layers_tab):
+        button = tk.Button(window, text="Create button!", command=lambda: self.create_button(window1, layers_tab))
         button.pack(pady=10, padx=10)
 
-    def create_button(self, window, layer):
+    def create_button(self, window, layers_tab):
         button1 = tk.Button(window, text=f"Created button{self.rows}!")
         button1.pack(side=tk.TOP)
-        button2 = tk.Button(layer, text=f"Layer button{self.rows}!")
+        button2 = tk.Button(layers_tab, text=f"Layer button{self.rows}!")
         button2.pack(side=tk.TOP)
-        #canvas.add(button1)
-        # canvas.create_window((20, 10 + (self.rows - 1) * 30), window=button1, anchor="nw")
-        #
-        # canvas.update_idletasks()
-        # canvas.config(scrollregion=canvas.bbox("all"))
 
         self.rows += 1
 
