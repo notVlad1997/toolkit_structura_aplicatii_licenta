@@ -1,5 +1,8 @@
+import os
 import tkinter as tk
+import inspect
 
+from component_template import ComponentTemplate
 from ui.window import FrameWindow
 
 
@@ -22,7 +25,7 @@ class MainFrame(tk.Frame):
 
         self.create_menu()
 
-    def create_components_panel(self):
+    def create_category_panel(self):
         left_pane = tk.PanedWindow(self.main_pane, orient=tk.VERTICAL, sashrelief=tk.RAISED, sashwidth=7)
         self.main_pane.add(left_pane, minsize=200)
 
@@ -32,6 +35,64 @@ class MainFrame(tk.Frame):
         self.category_pane.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
+        component_path = "./component"
+        folders = [folder for folder in os.listdir(component_path) if os.path.isdir(os.path.join(component_path, folder))]
+
+        for folder in folders:
+            button = tk.Button(self.category_pane, text=folder, command=lambda f=folder: self.folder_button_clicked(f))
+            button.pack(side=tk.TOP)
+
+        self.create_components_panel(left_pane)
+
+    def folder_button_clicked(self, folder_name):
+        print(f"Folder selected: {folder_name}")
+        folder_path = f"./component/{folder_name}"
+
+        python_files = [f for f in os.listdir(folder_path) if f.endswith(".py") and not f.startswith("__")]
+
+        if python_files:
+            for widget in self.component_pane.winfo_children():
+                widget.destroy()
+
+            for python_file in python_files:
+                module_name = os.path.splitext(python_file)[0]
+                template_file_path = os.path.join(folder_path, python_file)
+
+                try:
+                    with open(template_file_path, 'r') as file:
+                        module_content = file.read()
+
+                    # Executarea conținutului într-un spațiu de nume separat
+                    namespace = {}
+                    exec(module_content, namespace)
+
+                    for name, obj in namespace.items():
+                        if inspect.isclass(obj) and issubclass(obj, ComponentTemplate) and obj != ComponentTemplate:
+                            # Creați o instanță a clasei și apelați metoda show_properties
+                            component_instance = obj()
+                            component_instance.show_properties()
+
+                            # Creați butoane pentru atributul 'name'
+                            self.create_name_buttons(component_instance.name)
+
+                except Exception as e:
+                    print(f"Error loading module: {module_name}, {e}")
+
+        else:
+            print(f"No Python files found in folder: {folder_path}")
+
+
+    def create_name_buttons(self, button_name):
+        # Creați butoane pentru atributul 'name'
+        button = tk.Button(self.component_pane, text=button_name,
+                               command=lambda name=button_name: self.name_button_clicked(name))
+        button.pack(side=tk.TOP)
+
+    def name_button_clicked(self, attribute_name):
+        # Acțiunea care trebuie efectuată atunci când un buton de nume este apăsat
+        print(f"Name attribute clicked: {attribute_name}")
+
+    def create_components_panel(self, left_pane):
         self.component_pane = tk.Frame(left_pane)
         left_pane.add(self.category_pane, minsize=200)
         left_pane.add(self.component_pane, minsize=200)
@@ -39,10 +100,10 @@ class MainFrame(tk.Frame):
     def create_widgets(self):
         self.main_pane = tk.PanedWindow(self, orient=tk.HORIZONTAL, sashrelief=tk.SUNKEN, sashwidth=7)
         self.main_pane.pack(fill=tk.BOTH, expand=True)
-        self.create_components_panel()
+        self.create_category_panel()
 
         middle_pane = tk.PanedWindow(self.main_pane, orient=tk.VERTICAL, sashrelief=tk.RAISED, sashwidth=7)
-        self.main_pane.add(middle_pane, minsize=200)
+        self.main_pane.add(middle_pane, minsize=600)
         middle_pane.pack_propagate(False)
 
         self.window = FrameWindow(master=middle_pane)
