@@ -4,9 +4,14 @@ import inspect
 
 from component_template import ComponentTemplate
 from ui.window import FrameWindow
+from ui.components import WindowComponents
 
 
 class MainFrame(tk.Frame):
+    """
+    Constructor. It creates the UI app.
+    """
+
     def __init__(self, master):
         super().__init__(master)
         self.master = master
@@ -23,12 +28,16 @@ class MainFrame(tk.Frame):
         self.pack(fill=tk.BOTH, expand=True)
         self.rows = 1
 
+        self.component_list = WindowComponents()
+
         self.create_menu()
 
-    def create_category_panel(self):
-        left_pane = tk.PanedWindow(self.main_pane, orient=tk.VERTICAL, sashrelief=tk.RAISED, sashwidth=7)
-        self.main_pane.add(left_pane, minsize=200)
+    """
+    Method that creates the Category Panel for the Application.It includes all the folders from "component" folder.
+    :arg left_pane: Panel on which the Category will be added.
+    """
 
+    def create_category_panel(self, left_pane):
         self.category_pane = tk.Canvas(left_pane, width=500, height=500)
         scrollbar = tk.Scrollbar(self.category_pane, command=self.category_pane.yview)
         self.category_pane.config(yscrollcommand=scrollbar.set, scrollregion=(0, 0, 0, 2000))
@@ -36,61 +45,93 @@ class MainFrame(tk.Frame):
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
         component_path = "./component"
-        folders = [folder for folder in os.listdir(component_path) if os.path.isdir(os.path.join(component_path, folder))]
+        folders = [folder for folder in os.listdir(component_path) if
+                   os.path.isdir(os.path.join(component_path, folder))]
 
         for folder in folders:
-            button = tk.Button(self.category_pane, text=folder, command=lambda f=folder: self.folder_button_clicked(f))
+            button = tk.Button(self.category_pane, text=folder, command=lambda f=folder: self.category_clicked(f))
             button.pack(side=tk.TOP)
 
         self.create_components_panel(left_pane)
 
-    def folder_button_clicked(self, folder_name):
-        print(f"Folder selected: {folder_name}")
-        folder_path = f"./component/{folder_name}"
+    """
+    Method that creates the Component Panel when a Category is clicked. It will add all the .py files, importing them. 
+    :arg category: The category on which the Component Tab will be updated.
+    """
 
+    def category_clicked(self, category):
+        folder_path = f"./component/{category}"
         python_files = [f for f in os.listdir(folder_path) if f.endswith(".py") and not f.startswith("__")]
-
         if python_files:
             for widget in self.component_pane.winfo_children():
                 widget.destroy()
-
             for python_file in python_files:
                 module_name = os.path.splitext(python_file)[0]
                 template_file_path = os.path.join(folder_path, python_file)
-
                 try:
                     with open(template_file_path, 'r') as file:
                         module_content = file.read()
-
-                    # Executarea conținutului într-un spațiu de nume separat
                     namespace = {}
                     exec(module_content, namespace)
-
                     for name, obj in namespace.items():
                         if inspect.isclass(obj) and issubclass(obj, ComponentTemplate) and obj != ComponentTemplate:
-                            # Creați o instanță a clasei și apelați metoda show_properties
                             component_instance = obj()
-                            component_instance.show_properties()
-
-                            # Creați butoane pentru atributul 'name'
-                            self.create_name_buttons(component_instance.name)
-
+                            self.category_button(component_instance.name, obj)
                 except Exception as e:
                     print(f"Error loading module: {module_name}, {e}")
-
         else:
             print(f"No Python files found in folder: {folder_path}")
 
+    """
+    Method that adds all the buttons with the functionality of getting all the components of the category.
+    :arg button_name: The name of the button will be displayed.
+    :arg element: The class element
+    """
 
-    def create_name_buttons(self, button_name):
-        # Creați butoane pentru atributul 'name'
+    def category_button(self, button_name, class_element):
         button = tk.Button(self.component_pane, text=button_name,
-                               command=lambda name=button_name: self.name_button_clicked(name))
+                           command=lambda name=button_name: self.add_new_component(name, class_element))
         button.pack(side=tk.TOP)
 
-    def name_button_clicked(self, attribute_name):
-        # Acțiunea care trebuie efectuată atunci când un buton de nume este apăsat
+    """
+    Method that a new component on the window(TODO) and it creates a new layer, and stores it
+    """
+
+    def add_new_component(self, attribute_name, element):
         print(f"Name attribute clicked: {attribute_name}")
+        button = tk.Button(self.layer_pane, text=f"Layer button for {attribute_name}",
+                           command=lambda name=attribute_name: self.properties_component(name, element))
+        button.pack(side=tk.TOP)
+        component = element()
+        self.component_list.add_component(component)
+
+    def properties_component(self, attribute_name, object):
+        print(f"Layer button clicked for: {attribute_name}")
+        component = None
+        for comp in self.component_list.components:
+            if comp.name == attribute_name:
+                component = comp
+                break
+
+        # Dacă componenta corespunzătoare a fost găsită, afișați proprietățile în properties_pane
+        if component:
+            self.display_component_properties(component)
+        else:
+            print("Component not found.")
+
+    def display_component_properties(self, component):
+        # Ștergeți toate widget-urile din properties_pane
+        for widget in self.properties_pane.winfo_children():
+            widget.destroy()
+
+        # Iterați prin toate atributele componente și adăugați-le în properties_pane
+        for attribute_name in component.attribute_names:
+            label = tk.Label(self.properties_pane, text=f"{attribute_name}:")
+            label.pack(side=tk.TOP)
+
+            # Utilizați get_attribute_component pentru a obține componenta corespunzătoare atributului
+            attribute_component = component.get_attribute_component(attribute_name, master=self.properties_pane)
+            attribute_component.pack(side=tk.TOP)
 
     def create_components_panel(self, left_pane):
         self.component_pane = tk.Frame(left_pane)
@@ -100,7 +141,11 @@ class MainFrame(tk.Frame):
     def create_widgets(self):
         self.main_pane = tk.PanedWindow(self, orient=tk.HORIZONTAL, sashrelief=tk.SUNKEN, sashwidth=7)
         self.main_pane.pack(fill=tk.BOTH, expand=True)
-        self.create_category_panel()
+
+        left_pane = tk.PanedWindow(self.main_pane, orient=tk.VERTICAL, sashrelief=tk.RAISED, sashwidth=7)
+        self.create_category_panel(left_pane)
+
+        self.main_pane.add(left_pane, minsize=200)
 
         middle_pane = tk.PanedWindow(self.main_pane, orient=tk.VERTICAL, sashrelief=tk.RAISED, sashwidth=7)
         self.main_pane.add(middle_pane, minsize=600)
@@ -123,31 +168,6 @@ class MainFrame(tk.Frame):
         right_pane.add(self.layer_pane, minsize=200)
         right_pane.add(self.properties_pane, minsize=200)
 
-        # tk.Label(properties_pane, text="Culoare:").grid(row=0, column=0, padx=5, pady=5)
-        # culoare_entry = tk.Entry(properties_pane)
-        # culoare_entry.grid(row=0, column=1, padx=5, pady=5)
-        #
-        # tk.Label(properties_pane, text="Text:").grid(row=1, column=0, padx=5, pady=5)
-        # text_entry = tk.Entry(properties_pane)
-        # text_entry.grid(row=1, column=1, padx=5, pady=5)
-
-        # buton_modificare = tk.Button(properties_pane, text="Modifică", command=self.modify)
-        # buton_modificare.grid(row=2, columnspan=2, pady=10)
-
-        self.create_buttons(self.component_pane, self.window.interior_frame, self.layer_pane)
-
-    def create_buttons(self, window, window1, layers_tab):
-        button = tk.Button(window, text="Create button!", command=lambda: self.create_button(window1, layers_tab))
-        button.pack(pady=10, padx=10)
-
-    def create_button(self, window, layers_tab):
-        button1 = tk.Button(window, text=f"Created button{self.rows}!")
-        button1.pack(side=tk.TOP)
-        button2 = tk.Button(layers_tab, text=f"Layer button{self.rows}!")
-        button2.pack(side=tk.TOP)
-
-        self.rows += 1
-
     def modify(self):
         print("TO DO")
 
@@ -165,7 +185,7 @@ class MainFrame(tk.Frame):
         file_menu.add_separator()
         file_menu.add_command(label="Exit", command=self.master.destroy)
 
-        menubar.add_cascade(label="Setari", command=self.dummy_function)
+        menubar.add_cascade(label="Settings", command=self.dummy_function)
 
     def dummy_function(self):
         print("Function to be implemented.")
