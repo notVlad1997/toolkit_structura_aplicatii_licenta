@@ -1,5 +1,9 @@
 from component_template import ComponentTemplate
 
+"""
+Class that stores all the elements that are going to be linked for the JSON UI.
+"""
+
 
 class WindowComponents:
     def __init__(self):
@@ -19,5 +23,3 @@ class WindowComponents:
         found_component = self.components[index]
         if issubclass(found_component, ComponentTemplate):
             found_component.modify_value(attribute_name, value)
-
-

@@ -12,13 +12,6 @@ class ButtonTkinter(component_template.ComponentTemplate):
         self.add_property(name="background_color", json_attribute="Background Color", button_type="color",
                           default_value="gray")
 
-    def return_component(self, window=None):
-        self.update_component(window)
-        return self.component
-
-    def update_value(self, index):
-        super().update_value(index=index)
-
     def update_component(self, window=None):
         if window is not None:
             self.component = tkinter.Button(window)

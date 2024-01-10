@@ -7,11 +7,14 @@ from ui.window import FrameWindow
 from ui.components import WindowComponents
 
 
+def modify():
+    print("TO DO")
+
+
 class MainFrame(tk.Frame):
     """
     Constructor. It creates the UI app.
     """
-
     def __init__(self, master):
         super().__init__(master)
         self.master = master
@@ -36,7 +39,6 @@ class MainFrame(tk.Frame):
     Method that creates the Category Panel for the Application.It includes all the folders from "component" folder.
     :arg left_pane: Panel on which the Category will be added.
     """
-
     def create_category_panel(self, left_pane):
         self.category_pane = tk.Canvas(left_pane, width=500, height=500)
         scrollbar = tk.Scrollbar(self.category_pane, command=self.category_pane.yview)
@@ -58,7 +60,6 @@ class MainFrame(tk.Frame):
     Method that creates the Component Panel when a Category is clicked. It will add all the .py files, importing them. 
     :arg category: The category on which the Component Tab will be updated.
     """
-
     def category_clicked(self, category):
         folder_path = f"./component/{category}"
         python_files = [f for f in os.listdir(folder_path) if f.endswith(".py") and not f.startswith("__")]
@@ -87,19 +88,19 @@ class MainFrame(tk.Frame):
     :arg button_name: The name of the button will be displayed.
     :arg element: The class element
     """
-
     def category_button(self, button_name, class_element):
         button = tk.Button(self.component_pane, text=button_name,
                            command=lambda name=button_name: self.add_new_component(name, class_element))
         button.pack(side=tk.TOP)
 
     """
-    Method that a new component on the window and it creates a new layer, and stores it
+    Method that a new component on the window and it creates a new layer, and stores it.
+    :arg attribute_name: Name of the attribute, that it will be added to the UI
+    :arg element: Name of the class, that its going to be added as a new component. 
     """
     def add_new_component(self, attribute_name, element):
-        print(f"Name attribute clicked: {attribute_name}")
-        button = tk.Button(self.layer_pane, text=f"Layer button for {attribute_name}",
-                           command=lambda name=attribute_name: self.properties_component(name, element))
+        button = tk.Button(self.layer_pane, text=f"Layer {attribute_name}",
+                           command=lambda name=attribute_name: self.properties_component(name))
         button.pack(side=tk.TOP)
         component = element()
         self.component_list.add_component(component)
@@ -107,39 +108,67 @@ class MainFrame(tk.Frame):
         component_widget = component.return_component(self.window.interior_frame)
         component_widget.pack()
 
-    def properties_component(self, attribute_name, object):
-        print(f"Layer button clicked for: {attribute_name}")
+    """
+    Method that it activates when the layer is pressed.
+    It triggers the options that can be edited.
+    :arg attribute_name: The name of the component that it needs to pull the categories.
+    """
+    def properties_component(self, attribute_name):
         component = None
         for comp in self.component_list.components:
             if comp.name == attribute_name:
                 component = comp
                 break
-
-        # Dacă componenta corespunzătoare a fost găsită, afișați proprietățile în properties_pane
         if component:
             self.display_component_properties(component)
         else:
             print("Component not found.")
-
+    """
+    Method that display all the options that can be edited in the UI.
+    :arg component: The component that has all the properties.
+    """
     def display_component_properties(self, component):
-        # Ștergeți toate widget-urile din properties_pane
         for widget in self.properties_pane.winfo_children():
             widget.destroy()
 
-        # Iterați prin toate atributele componente și adăugați-le în properties_pane
         for attribute_name in component.attribute_names:
             label = tk.Label(self.properties_pane, text=f"{attribute_name}:")
             label.pack(side=tk.TOP)
 
-            # Utilizați get_attribute_component pentru a obține componenta corespunzătoare atributului
             attribute_component = component.get_attribute_component(attribute_name, master=self.properties_pane)
             attribute_component.pack(side=tk.TOP)
-
+    """
+    Method that adds a frame for the component panel to be added.
+    :args left_pane: Frame that will contain all the buttons of Components.
+    """
     def create_components_panel(self, left_pane):
         self.component_pane = tk.Frame(left_pane)
         left_pane.add(self.category_pane, minsize=200)
         left_pane.add(self.component_pane, minsize=200)
 
+    """
+    Method that adds a frame for the layers panel to be added.
+    :args left_pane: Frame that will contain all the buttons of Layer.
+    """
+    def create_layers_panel(self, right_pane):
+        self.layer_pane = tk.Canvas(right_pane, width=500, height=500)
+        scrollbar = tk.Scrollbar(self.layer_pane, command=self.layer_pane.yview)
+        self.layer_pane.config(yscrollcommand=scrollbar.set, scrollregion=(0, 0, 0, 2000))
+        self.layer_pane.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        right_pane.add(self.layer_pane, minsize=200)
+
+    """
+    Method that adds a frame for the properties panel to be added.
+    :args left_pane: Frame that will contain all the buttons of Properties.
+    """
+    def create_properties_panel(self,right_pane):
+        self.properties_pane = tk.Frame(right_pane)
+        right_pane.add(self.properties_pane, minsize=200)
+
+    """
+    Method that implements the whole structure of the UI Interface.
+    """
     def create_widgets(self):
         self.main_pane = tk.PanedWindow(self, orient=tk.HORIZONTAL, sashrelief=tk.SUNKEN, sashwidth=7)
         self.main_pane.pack(fill=tk.BOTH, expand=True)
@@ -147,32 +176,25 @@ class MainFrame(tk.Frame):
         left_pane = tk.PanedWindow(self.main_pane, orient=tk.VERTICAL, sashrelief=tk.RAISED, sashwidth=7)
         self.create_category_panel(left_pane)
 
-        self.main_pane.add(left_pane, minsize=200)
-
         middle_pane = tk.PanedWindow(self.main_pane, orient=tk.VERTICAL, sashrelief=tk.RAISED, sashwidth=7)
-        self.main_pane.add(middle_pane, minsize=600)
         middle_pane.pack_propagate(False)
 
         self.window = FrameWindow(master=middle_pane)
         middle_pane.add(self.window, minsize=200)
 
         right_pane = tk.PanedWindow(self.main_pane, orient=tk.VERTICAL, sashrelief=tk.RAISED, sashwidth=7)
-        self.main_pane.add(right_pane, minsize=100)
         right_pane.pack_propagate(False)
 
-        self.layer_pane = tk.Canvas(right_pane, width=500, height=500)
-        scrollbar = tk.Scrollbar(self.layer_pane, command=self.layer_pane.yview)
-        self.layer_pane.config(yscrollcommand=scrollbar.set, scrollregion=(0, 0, 0, 2000))
-        self.layer_pane.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        self.create_layers_panel(right_pane)
+        self.create_properties_panel(right_pane)
 
-        self.properties_pane = tk.Frame(right_pane)
-        right_pane.add(self.layer_pane, minsize=200)
-        right_pane.add(self.properties_pane, minsize=200)
+        self.main_pane.add(left_pane, minsize=200)
+        self.main_pane.add(middle_pane, minsize=600)
+        self.main_pane.add(right_pane, minsize=100)
 
-    def modify(self):
-        print("TO DO")
-
+    """
+    Method that implements the header.
+    """
     def create_menu(self):
         menubar = tk.Menu(self.master)
         self.master.config(menu=menubar)
