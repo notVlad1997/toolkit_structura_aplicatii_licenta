@@ -5,7 +5,7 @@ import component_template
 
 class ButtonTkinter(component_template.ComponentTemplate):
     def __init__(self):
-        super().__init__(name="Test2", category="Tkinter", source_class="tkinter")
+        super().__init__(name="Test 2", category="Tkinter", source_class="tkinter")
         self.add_property(name="width", json_attribute="Width", button_type="slider", default_value=100)
         self.add_property(name="height", json_attribute="Height", button_type="slider", default_value=30)
         self.add_property(name="font", json_attribute="Font", button_type="text", default_value="Arial")
@@ -23,5 +23,3 @@ class ButtonTkinter(component_template.ComponentTemplate):
 
     def return_component(self, window):
         button = tkinter.Button()
-
-        return

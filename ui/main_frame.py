@@ -94,9 +94,8 @@ class MainFrame(tk.Frame):
         button.pack(side=tk.TOP)
 
     """
-    Method that a new component on the window(TODO) and it creates a new layer, and stores it
+    Method that a new component on the window and it creates a new layer, and stores it
     """
-
     def add_new_component(self, attribute_name, element):
         print(f"Name attribute clicked: {attribute_name}")
         button = tk.Button(self.layer_pane, text=f"Layer button for {attribute_name}",
@@ -104,6 +103,9 @@ class MainFrame(tk.Frame):
         button.pack(side=tk.TOP)
         component = element()
         self.component_list.add_component(component)
+
+        component_widget = component.return_component(self.window.interior_frame)
+        component_widget.pack()
 
     def properties_component(self, attribute_name, object):
         print(f"Layer button clicked for: {attribute_name}")

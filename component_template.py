@@ -6,6 +6,7 @@ class ComponentTemplate:
     """
     Constructor
     """
+
     def __init__(self, name, category, source_class):
         self.name = name
         self.category = category
@@ -14,6 +15,9 @@ class ComponentTemplate:
         self.attribute_json_names = []
         self.attribute_field = []
         self.attribute_value = []
+        self.update_attribute = []
+        self.component = ""
+        self.color_options = ["white", "black", "red", "green", "blue", "yellow", "purple", "orange"]
 
     """
     Method which will add a new attribute, that can be modified.
@@ -22,6 +26,7 @@ class ComponentTemplate:
     :arg button_type: The name of the input type that will be used in the UI.
     :arg default_value: The default value for the new item added.
     """
+
     def add_property(self, name, json_attribute, button_type, default_value):
         self.attribute_names.append(name)
         self.attribute_json_names.append(json_attribute)
@@ -31,6 +36,7 @@ class ComponentTemplate:
     """
     Method which will show all the properties, with their current value.
     """
+
     def show_properties(self):
         print(f"Component Name: {self.name}")
         print(f"Source Class: {self.source_class}")
@@ -51,6 +57,7 @@ class ComponentTemplate:
     Method which will add all the properties into a .json file.
     :arg filename: The name of the file in which will be saved. 
     """
+
     def save_to_json(self, filename):
         data = {
             "name": self.name,
@@ -66,23 +73,29 @@ class ComponentTemplate:
     :arg attribute_name: The name of the attribute that is required
     :arg master: The name of the panel in which the option will be added.
     """
+
     def get_attribute_component(self, attribute_name, master):
         if attribute_name in self.attribute_names:
             index = self.attribute_names.index(attribute_name)
             attribute_type = self.attribute_field[index]
+            attribute_val = self.attribute_value[index]
             if attribute_type == "text":
-                return tk.Entry(master)
+                self.update_attribute.append(tk.StringVar(value=attribute_val))
+                self.update_attribute[index].trace_add("write", lambda *args, index=index: self.update_value(index))
+                return tk.Entry(master, textvariable=self.update_attribute[index])
             elif attribute_type == "slider":
-                return tk.Scale(master, from_=0, to=100, orient=tk.HORIZONTAL, )
+                self.update_attribute.append(tk.IntVar(value=attribute_val))
+                self.update_attribute[index].trace_add("write", lambda *args, index=index: self.update_value(index))
+                return tk.Scale(master, from_=0, to=100, orient=tk.HORIZONTAL, variable=self.update_attribute[index])
             elif attribute_type == "table":
+                self.update_attribute.append(tk.StringVar(value=attribute_val))
                 return "Componenta de tip tabel"
             elif attribute_type == "color":
-                color_var = tk.StringVar(master)
-                color_var.set("#000000")
+                self.update_attribute.append(tk.StringVar(value=attribute_val))
+                self.update_attribute[index].trace_add("write", lambda *args, index=index: self.update_value(index))
 
-                color_options = ["white", "black", "red", "green", "blue", "yellow", "purple", "orange"]
+                color_menu = tk.OptionMenu(master, self.update_attribute[index], *self.color_options)
 
-                color_menu = tk.OptionMenu(master, color_var, *color_options)
                 return color_menu
             else:
                 return f"Tip de atribut necunoscut: {attribute_type}"
@@ -99,5 +112,14 @@ class ComponentTemplate:
             index = self.attribute_names.index(attribute_name)
             self.attribute_value[index] = value
 
-    def return_component(self):
+    def return_component(self, window=None):
         return None
+
+    def update_value(self, index):
+        #print(self.update_attribute[index].get())
+        self.attribute_value[index] = self.update_attribute[index].get()
+        self.show_properties()
+        self.update_component()
+
+    def update_component(self, window=None):
+        print('Nothing')

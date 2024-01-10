@@ -6,20 +6,26 @@ import component_template
 class ButtonTkinter(component_template.ComponentTemplate):
     def __init__(self):
         super().__init__(name="Button", category="Tkinter", source_class="tkinter")
-        self.add_property(name="width", json_attribute="Width", button_type="slider", default_value=100)
-        self.add_property(name="height", json_attribute="Height", button_type="slider", default_value=30)
+        self.add_property(name="width", json_attribute="Width", button_type="slider", default_value=5)
+        self.add_property(name="height", json_attribute="Height", button_type="slider", default_value=1)
         self.add_property(name="font", json_attribute="Font", button_type="text", default_value="Arial")
         self.add_property(name="background_color", json_attribute="Background Color", button_type="color",
-                          default_value="#ffffff")
+                          default_value="gray")
 
-    def show_properties(self):
-        super().show_properties()
+    def return_component(self, window=None):
+        self.update_component(window)
+        return self.component
 
-    def add_property(self, name, json_attribute, button_type, default_value):
-        super().add_property(name=name, json_attribute=json_attribute, button_type=button_type, default_value=default_value)
+    def update_value(self, index):
+        super().update_value(index=index)
 
-    def modify_value(self, attribute_name, value):
-        super().modify_value(attribute_name=attribute_name, value=value)
-
-    def get_attribute_component(self, attribute_name, master):
-        super().get_attribute_component(attribute_name=attribute_name, master=master)
+    def update_component(self, window=None):
+        if window is not None:
+            self.component = tkinter.Button(window)
+        self.component.config(
+            width=self.attribute_value[self.attribute_names.index("width")],
+            height=self.attribute_value[self.attribute_names.index("height")],
+            font=(self.attribute_value[self.attribute_names.index("font")], 12),
+            bg=self.attribute_value[self.attribute_names.index("background_color")],
+        )
+        self.component.pack()
