@@ -99,11 +99,12 @@ class MainFrame(tk.Frame):
     :arg element: Name of the class, that its going to be added as a new component. 
     """
     def add_new_component(self, attribute_name, element):
-        button = tk.Button(self.layer_pane, text=f"Layer {attribute_name}",
-                           command=lambda name=attribute_name: self.properties_component(name))
-        button.pack(side=tk.TOP)
         component = element()
         self.component_list.add_component(component)
+
+        button = tk.Button(self.layer_pane, text=f"Layer {attribute_name}",
+                           command=lambda comp=component: self.properties_component(comp))
+        button.pack(side=tk.TOP)
 
         component_widget = component.return_component(self.window.interior_frame)
         component_widget.pack()
@@ -113,10 +114,10 @@ class MainFrame(tk.Frame):
     It triggers the options that can be edited.
     :arg attribute_name: The name of the component that it needs to pull the categories.
     """
-    def properties_component(self, attribute_name):
+    def properties_component(self, component_pressed):
         component = None
         for comp in self.component_list.components:
-            if comp.name == attribute_name:
+            if component_pressed == comp:
                 component = comp
                 break
         if component:
@@ -203,13 +204,16 @@ class MainFrame(tk.Frame):
         menubar.add_cascade(label="File", menu=file_menu)
         file_menu.add_command(label="New", command=self.dummy_function)
         file_menu.add_command(label="Open", command=self.dummy_function)
-        file_menu.add_command(label="Save", command=self.dummy_function)
+        file_menu.add_command(label="Save", command=self.action_save)
         file_menu.add_separator()
         file_menu.add_command(label="Generate", command=self.dummy_function)
         file_menu.add_separator()
         file_menu.add_command(label="Exit", command=self.master.destroy)
 
         menubar.add_cascade(label="Settings", command=self.dummy_function)
+
+    def action_save(self):
+        self.component_list.save_json()
 
     def dummy_function(self):
         print("Function to be implemented.")

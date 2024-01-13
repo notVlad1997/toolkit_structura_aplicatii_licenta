@@ -5,20 +5,20 @@ import component_template
 
 class ButtonTkinter(component_template.ComponentTemplate):
     def __init__(self):
-        super().__init__(name="Button", category="Tkinter", source_class="tkinter")
-        self.add_property(name="width", json_attribute="Width", button_type="slider", default_value=5)
-        self.add_property(name="height", json_attribute="Height", button_type="slider", default_value=1)
-        self.add_property(name="font", json_attribute="Font", button_type="text", default_value="Arial")
-        self.add_property(name="background_color", json_attribute="Background Color", button_type="color",
+        super().__init__(name="Button")
+        self.add_property(name="Width", button_type="slider", default_value=5)
+        self.add_property(name="Height", button_type="slider", default_value=1)
+        self.add_property(name="Font", button_type="text", default_value="Arial")
+        self.add_property(name="Background Color", button_type="color",
                           default_value="gray")
 
     def update_component(self, window=None):
         if window is not None:
             self.component = tkinter.Button(window)
         self.component.config(
-            width=self.attribute_value[self.attribute_names.index("width")],
-            height=self.attribute_value[self.attribute_names.index("height")],
-            font=(self.attribute_value[self.attribute_names.index("font")], 12),
-            bg=self.attribute_value[self.attribute_names.index("background_color")],
+            width=self.attribute_value[self.attribute_names.index("Width")],
+            height=self.attribute_value[self.attribute_names.index("Height")],
+            font=(self.attribute_value[self.attribute_names.index("Font")], 12),
+            bg=self.attribute_value[self.attribute_names.index("Background Color")],
         )
         self.component.pack()

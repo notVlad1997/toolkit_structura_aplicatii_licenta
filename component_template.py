@@ -1,4 +1,7 @@
+from tkinter import ttk
+
 import json
+import os
 import tkinter as tk
 
 
@@ -6,15 +9,16 @@ class ComponentTemplate:
     """
     Constructor
     """
-    def __init__(self, name, category, source_class):
+    def __init__(self, name):
         self.name = name
-        self.category = category
-        self.source_class = source_class
+        self.category = os.path.dirname(name)
+
         self.attribute_names = []
-        self.attribute_json_names = []
         self.attribute_field = []
         self.attribute_value = []
+
         self.update_attribute = []
+
         self.component = ""
         self.color_options = ["white", "black", "red", "green", "blue", "yellow", "purple", "orange"]
 
@@ -25,9 +29,8 @@ class ComponentTemplate:
     :arg button_type: The name of the input type that will be used in the UI.
     :arg default_value: The default value for the new item added.
     """
-    def add_property(self, name, json_attribute, button_type, default_value):
+    def add_property(self, name, button_type, default_value):
         self.attribute_names.append(name)
-        self.attribute_json_names.append(json_attribute)
         self.attribute_field.append(button_type)
         self.attribute_value.append(default_value)
 
@@ -36,13 +39,9 @@ class ComponentTemplate:
     """
     def show_properties(self):
         print(f"Component Name: {self.name}")
-        print(f"Source Class: {self.source_class}")
         print("Attribute Names:")
         for attr_name in self.attribute_names:
             print(f"  - {attr_name}")
-        print("JSON Attribute Names:")
-        for json_name in self.attribute_json_names:
-            print(f"  - {json_name}")
         print("Attribute Field:")
         for attr_field in self.attribute_field:
             print(f"  - {attr_field}")
@@ -58,9 +57,8 @@ class ComponentTemplate:
     def save_to_json(self, filename):
         data = {
             "name": self.name,
-            "source_class": self.source_class,
             "attribute_names": self.attribute_names,
-            "attribute_json_names": self.attribute_json_names
+            "attribute_value": self.attribute_value
         }
         with open(filename, 'w') as json_file:
             json.dump(data, json_file, indent=2)
@@ -71,7 +69,7 @@ class ComponentTemplate:
     :arg master: The name of the panel in which the option will be added.
     """
 
-    def get_attribute_component(self, attribute_name, master):
+    def get_attribute_component(self, attribute_name, master, columns=0):
         if attribute_name in self.attribute_names:
             index = self.attribute_names.index(attribute_name)
             attribute_type = self.attribute_field[index]
@@ -85,8 +83,19 @@ class ComponentTemplate:
                 self.update_attribute[index].trace_add("write", lambda *args, i=index: self.update_value(i))
                 return tk.Scale(master, from_=0, to=100, orient=tk.HORIZONTAL, variable=self.update_attribute[index])
             elif attribute_type == "table":
-                self.update_attribute.append(tk.StringVar(value=attribute_val))
-                return "Componenta de tip tabel"
+                table_frame = tk.Frame(master)
+                table_frame.pack()
+
+                table_label = tk.Label(table_frame, text="Table Data")
+                table_label.grid(row=0, column=0)
+
+                table = ttk.Treeview(table_frame, columns=("Table Data"))
+                table.grid(row=1, column=0)
+
+                data = attribute_val.split(',')
+                for value in data:
+                    table.insert("", "end", values=(value,))
+                return table_frame
             elif attribute_type == "color":
                 self.update_attribute.append(tk.StringVar(value=attribute_val))
                 self.update_attribute[index].trace_add("write", lambda *args, i=index: self.update_value(i))
