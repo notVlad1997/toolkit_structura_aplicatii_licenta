@@ -1,6 +1,6 @@
 {
   "name": "Button",
-  "category": "",
+  "category": "Tkinter",
   "attributes": [
     {
       "attribute_name": "Width",

@@ -1,3 +1,4 @@
+import importlib
 import json
 import os
 import tkinter as tk
@@ -134,6 +135,7 @@ class MainFrame(tk.Frame):
         for widget in self.properties_pane.winfo_children():
             widget.destroy()
 
+        print(component.attribute_names)
         for attribute_name in component.attribute_names:
             label = tk.Label(self.properties_pane, text=f"{attribute_name}:")
             label.pack(side=tk.TOP)
@@ -217,51 +219,86 @@ class MainFrame(tk.Frame):
     def action_save(self):
         self.component_list.save_json()
 
+    import importlib
+
     def action_open(self):
+        # Deschide dialogul pentru selectarea fișierului JSON
         file_path = filedialog.askopenfilename(defaultextension=".json", filetypes=[("JSON files", "*.json")])
         if file_path:
-            self.load_from_json(file_path)
+            try:
+                with open(file_path, 'r') as json_file:
+                    data = json.load(json_file)
+
+                    if "name" not in data or "category" not in data or "attributes" not in data:
+                        print("No class with such information.")
+                        return
+
+                    component_name = data["name"]
+                    category_name = data["category"]
+                    attributes_data = data["attributes"]
+
+                    folder_path = f"./component/{category_name}"
+
+                    if os.path.exists(folder_path) and os.path.isdir(folder_path):
+                        python_files = [f for f in os.listdir(folder_path) if
+                                        f.endswith(".py") and not f.startswith("__")]
+
+                        for python_file in python_files:
+                            module_name = os.path.splitext(python_file)[0]
+                            template_file_path = os.path.join(folder_path, python_file)
+
+                            try:
+                                with open(template_file_path, 'r') as file:
+                                    module_content = file.read()
+
+                                class_name = None
+                                namespace = {}
+                                exec(module_content, namespace)
+                                for name, obj in namespace.items():
+                                    if inspect.isclass(obj) and issubclass(obj,
+                                                                           ComponentTemplate) and obj != ComponentTemplate:
+                                        class_name = name
+                                        break
+
+                                if class_name:
+                                    # Încarcă modulul și clasa
+                                    module = importlib.import_module(f"component.{category_name}.{module_name}")
+                                    class_instance = getattr(module, class_name)
+
+                                    # Creează o instanță a clasei
+                                    component_instance = class_instance()
+
+                                    # Setează valorile atributelor
+                                    for attribute_data in attributes_data:
+                                        attribute_name = attribute_data.get("attribute_name", "")
+                                        attribute_value = attribute_data.get("attribute_value", "")
+                                        component_instance.modify_value(attribute_name, attribute_value)
+
+                                    # Adaugă componenta la listă
+                                    self.component_list.add_component(component_instance)
+
+                                    # Adaugă componenta în interfața grafică
+                                    button_name = f"{category_name} - {component_name}"
+                                    self.category_button(button_name, class_instance)
+
+                                    break  # Se oprește parcurgerea după ce a găsit și încărcat clasa
+
+                            except Exception as e:
+                                print(f"Error on module loading: {module_name}, {e}")
+
+                    else:
+                        print(f"Not existent")
+
+            except Exception as e:
+                print(f"Eroare la încărcarea fișierului JSON: {e}")
 
     def load_from_json(self, file_path):
         try:
             with open(file_path, 'r') as json_file:
                 data = json.load(json_file)
-                self.load_components_from_data(data)
+                print(data)
         except Exception as e:
             print(f"Error loading JSON file: {e}")
-
-    def load_components_from_data(self, data):
-        for component_data in data.get("components", []):
-            component_name = component_data.get("name", "")
-            category = component_data.get("category", "")
-            attributes = component_data.get("attributes", [])
-
-            component_class = self.find_component_class(category, component_name)
-            if component_class:
-                component_instance = component_class()
-                for attribute_data in attributes:
-                    attribute_name = attribute_data.get("attribute_name", "")
-                    attribute_value = attribute_data.get("attribute_value", "")
-                    component_instance.modify_value(attribute_name, attribute_value)
-
-                self.add_new_component(component_name, component_class)
-
-    def find_component_class(self, category, component_name):
-        component_path = f"./component/{category}/{component_name}.py"
-        module_name = os.path.splitext(os.path.basename(component_path))[0]
-
-        try:
-            with open(component_path, 'r') as file:
-                module_content = file.read()
-            namespace = {}
-            exec(module_content, namespace)
-            for name, obj in namespace.items():
-                if inspect.isclass(obj) and issubclass(obj, ComponentTemplate) and obj != ComponentTemplate:
-                    return obj
-        except Exception as e:
-            print(f"Error loading module: {module_name}, {e}")
-
-        return None
 
     def dummy_function(self):
         print("Function to be implemented.")

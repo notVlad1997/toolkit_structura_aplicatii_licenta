@@ -9,9 +9,10 @@ class ComponentTemplate:
     """
     Constructor
     """
-    def __init__(self, name):
+    def __init__(self, name, category):
         self.name = name
-        self.category = os.path.dirname(name)
+
+        self.category = category
 
         self.attribute_names = []
         self.attribute_field = []
@@ -21,6 +22,7 @@ class ComponentTemplate:
 
         self.component = ""
         self.color_options = ["white", "black", "red", "green", "blue", "yellow", "purple", "orange"]
+
 
     """
     Method which will add a new attribute, that can be modified.
@@ -83,13 +85,11 @@ class ComponentTemplate:
     :arg master: The name of the panel in which the option will be added.
     """
 
-    def get_attribute_component(self, attribute_name, master, columns=0):
+    def get_attribute_component(self, attribute_name, master):
         if attribute_name in self.attribute_names:
             index = self.attribute_names.index(attribute_name)
             attribute_type = self.attribute_field[index]
             attribute_val = self.attribute_values[index]
-            while len(self.update_attribute) <= index:
-                self.update_attribute.append(tk.StringVar())
             if attribute_type == "text":
                 self.update_attribute.append(tk.StringVar(value=attribute_val))
                 self.update_attribute[index].trace_add("write", lambda *args, i=index: self.update_value(i))
@@ -99,6 +99,7 @@ class ComponentTemplate:
                 self.update_attribute[index].trace_add("write", lambda *args, i=index: self.update_value(i))
                 return tk.Scale(master, from_=0, to=1000, orient=tk.HORIZONTAL, variable=self.update_attribute[index])
             elif attribute_type == "table":
+                self.update_attribute.append(tk.StringVar())
                 table_frame = tk.Frame(master)
                 table_frame.pack()
 
