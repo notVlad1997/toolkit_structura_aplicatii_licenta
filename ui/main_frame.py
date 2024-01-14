@@ -18,6 +18,7 @@ class MainFrame(tk.Frame):
     """
     Constructor. It creates the UI app.
     """
+
     def __init__(self, master):
         super().__init__(master)
         self.master = master
@@ -42,6 +43,7 @@ class MainFrame(tk.Frame):
     Method that creates the Category Panel for the Application.It includes all the folders from "component" folder.
     :arg left_pane: Panel on which the Category will be added.
     """
+
     def create_category_panel(self, left_pane):
         self.category_pane = tk.Canvas(left_pane, width=500, height=500)
         scrollbar = tk.Scrollbar(self.category_pane, command=self.category_pane.yview)
@@ -63,6 +65,7 @@ class MainFrame(tk.Frame):
     Method that creates the Component Panel when a Category is clicked. It will add all the .py files, importing them. 
     :arg category: The category on which the Component Tab will be updated.
     """
+
     def category_clicked(self, category):
         folder_path = f"./component/{category}"
         python_files = [f for f in os.listdir(folder_path) if f.endswith(".py") and not f.startswith("__")]
@@ -91,6 +94,7 @@ class MainFrame(tk.Frame):
     :arg button_name: The name of the button will be displayed.
     :arg element: The class element
     """
+
     def category_button(self, button_name, class_element):
         button = tk.Button(self.component_pane, text=button_name,
                            command=lambda name=button_name: self.add_new_component(name, class_element))
@@ -101,6 +105,7 @@ class MainFrame(tk.Frame):
     :arg attribute_name: Name of the attribute, that it will be added to the UI
     :arg element: Name of the class, that its going to be added as a new component. 
     """
+
     def add_new_component(self, attribute_name, element):
         component = element()
         self.component_list.add_component(component)
@@ -117,6 +122,7 @@ class MainFrame(tk.Frame):
     It triggers the options that can be edited.
     :arg attribute_name: The name of the component that it needs to pull the categories.
     """
+
     def properties_component(self, component_pressed):
         component = None
         for comp in self.component_list.components:
@@ -127,10 +133,12 @@ class MainFrame(tk.Frame):
             self.display_component_properties(component)
         else:
             print("Component not found.")
+
     """
     Method that display all the options that can be edited in the UI.
     :arg component: The component that has all the properties.
     """
+
     def display_component_properties(self, component):
         for widget in self.properties_pane.winfo_children():
             widget.destroy()
@@ -142,10 +150,12 @@ class MainFrame(tk.Frame):
 
             attribute_component = component.get_attribute_component(attribute_name, master=self.properties_pane)
             attribute_component.pack(side=tk.TOP)
+
     """
     Method that adds a frame for the component panel to be added.
     :args left_pane: Frame that will contain all the buttons of Components.
     """
+
     def create_components_panel(self, left_pane):
         self.component_pane = tk.Frame(left_pane)
         left_pane.add(self.category_pane, minsize=200)
@@ -155,6 +165,7 @@ class MainFrame(tk.Frame):
     Method that adds a frame for the layers panel to be added.
     :args left_pane: Frame that will contain all the buttons of Layer.
     """
+
     def create_layers_panel(self, right_pane):
         self.layer_pane = tk.Canvas(right_pane, width=500, height=500)
         scrollbar = tk.Scrollbar(self.layer_pane, command=self.layer_pane.yview)
@@ -167,13 +178,15 @@ class MainFrame(tk.Frame):
     Method that adds a frame for the properties panel to be added.
     :args left_pane: Frame that will contain all the buttons of Properties.
     """
-    def create_properties_panel(self,right_pane):
+
+    def create_properties_panel(self, right_pane):
         self.properties_pane = tk.Frame(right_pane)
         right_pane.add(self.properties_pane, minsize=200)
 
     """
     Method that implements the whole structure of the UI Interface.
     """
+
     def create_widgets(self):
         self.main_pane = tk.PanedWindow(self, orient=tk.HORIZONTAL, sashrelief=tk.SUNKEN, sashwidth=7)
         self.main_pane.pack(fill=tk.BOTH, expand=True)
@@ -200,6 +213,7 @@ class MainFrame(tk.Frame):
     """
     Method that implements the header.
     """
+
     def create_menu(self):
         menubar = tk.Menu(self.master)
         self.master.config(menu=menubar)
@@ -222,11 +236,10 @@ class MainFrame(tk.Frame):
     import importlib
 
     def action_open(self):
-        # Deschide dialogul pentru selectarea fișierului JSON
         file_path = filedialog.askopenfilename(defaultextension=".json", filetypes=[("JSON files", "*.json")])
         if file_path:
             try:
-                with open(file_path, 'r') as json_file:
+                with (open(file_path, 'r') as json_file):
                     data = json.load(json_file)
 
                     if "name" not in data or "category" not in data or "attributes" not in data:
@@ -255,50 +268,47 @@ class MainFrame(tk.Frame):
                                 namespace = {}
                                 exec(module_content, namespace)
                                 for name, obj in namespace.items():
-                                    if inspect.isclass(obj) and issubclass(obj,
-                                                                           ComponentTemplate) and obj != ComponentTemplate:
+                                    if inspect.isclass(obj) and issubclass(
+                                            obj, ComponentTemplate) and obj != ComponentTemplate:
                                         class_name = name
                                         break
 
                                 if class_name:
-                                    # Încarcă modulul și clasa
                                     module = importlib.import_module(f"component.{category_name}.{module_name}")
                                     class_instance = getattr(module, class_name)
 
-                                    # Creează o instanță a clasei
                                     component_instance = class_instance()
 
-                                    # Setează valorile atributelor
                                     for attribute_data in attributes_data:
                                         attribute_name = attribute_data.get("attribute_name", "")
                                         attribute_value = attribute_data.get("attribute_value", "")
-                                        component_instance.modify_value(attribute_name, attribute_value)
+                                        component_instance.modify_value(attribute_name=attribute_name,
+                                                                        value=attribute_value)
+                                        component_instance.show_properties()
 
-                                    # Adaugă componenta la listă
                                     self.component_list.add_component(component_instance)
 
-                                    # Adaugă componenta în interfața grafică
-                                    button_name = f"{category_name} - {component_name}"
-                                    self.category_button(button_name, class_instance)
+                                    button_name = f"Layer {category_name} - {component_name}"
+                                    self.layer_button(button_name, component_instance)
 
-                                    break  # Se oprește parcurgerea după ce a găsit și încărcat clasa
+                                    component_widget = component_instance.return_component(self.window.interior_frame)
+                                    component_widget.pack()
+
+                                    break
 
                             except Exception as e:
                                 print(f"Error on module loading: {module_name}, {e}")
 
                     else:
-                        print(f"Not existent")
+                        print(f"Not existent JSON File")
 
             except Exception as e:
-                print(f"Eroare la încărcarea fișierului JSON: {e}")
+                print(f"JSON File Error: {e}")
 
-    def load_from_json(self, file_path):
-        try:
-            with open(file_path, 'r') as json_file:
-                data = json.load(json_file)
-                print(data)
-        except Exception as e:
-            print(f"Error loading JSON file: {e}")
+    def layer_button(self, button_name, component_instance):
+        button = tk.Button(self.layer_pane, text=button_name,
+                           command=lambda comp=component_instance: self.properties_component(comp))
+        button.pack(side=tk.TOP)
 
     def dummy_function(self):
         print("Function to be implemented.")

@@ -9,7 +9,7 @@ class ButtonTkinter(component_template.ComponentTemplate):
         self.add_property(name="Width", button_type="slider", default_value=5)
         self.add_property(name="Height", button_type="slider", default_value=1)
         self.add_property(name="Font", button_type="text", default_value="Arial")
-        self.add_property(name="Background_Color", button_type="color",
+        self.add_property(name="Background Color", button_type="color",
                           default_value="gray")
 
     def update_component(self, window=None):
@@ -19,6 +19,6 @@ class ButtonTkinter(component_template.ComponentTemplate):
             width=self.attribute_values[self.attribute_names.index("Width")],
             height=self.attribute_values[self.attribute_names.index("Height")],
             font=(self.attribute_values[self.attribute_names.index("Font")], 12),
-            bg=self.attribute_values[self.attribute_names.index("Background_Color")],
+            bg=self.attribute_values[self.attribute_names.index("Background Color")],
         )
         self.component.pack()

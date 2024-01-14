@@ -188,6 +188,8 @@ class ComponentTemplate:
         if attribute_name in self.attribute_names:
             index = self.attribute_names.index(attribute_name)
             self.attribute_values[index] = value
+        else:
+            print(f"{attribute_name} NO")
 
     """
     Method which creates and returns a UI Component
