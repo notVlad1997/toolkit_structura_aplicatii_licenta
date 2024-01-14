@@ -57,6 +57,7 @@ class ComponentTemplate:
     def save_to_json(self, filename):
         data = {
             "name": self.name,
+            "category": self.category,
             "attributes": []
         }
 
@@ -69,6 +70,12 @@ class ComponentTemplate:
 
         with open(filename, 'w') as json_file:
             json.dump(data, json_file, indent=2)
+
+    def load_components_from_data(self, data):
+        for attribute_data in data.get("attributes", []):
+            attribute_name = attribute_data.get("attribute_name", "")
+            attribute_value = attribute_data.get("attribute_value", "")
+            self.modify_value(attribute_name, attribute_value)
 
     """
     Method which gets the input type for the required attribute

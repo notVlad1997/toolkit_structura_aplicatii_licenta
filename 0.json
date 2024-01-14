@@ -1,5 +1,6 @@
 {
   "name": "Button",
+  "category": "",
   "attributes": [
     {
       "attribute_name": "Width",

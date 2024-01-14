@@ -1,6 +1,8 @@
+import json
 import os
 import tkinter as tk
 import inspect
+from tkinter import filedialog
 
 from component_template import ComponentTemplate
 from ui.window import FrameWindow
@@ -203,7 +205,7 @@ class MainFrame(tk.Frame):
         file_menu = tk.Menu(menubar, tearoff=0)
         menubar.add_cascade(label="File", menu=file_menu)
         file_menu.add_command(label="New", command=self.dummy_function)
-        file_menu.add_command(label="Open", command=self.dummy_function)
+        file_menu.add_command(label="Open", command=self.action_open)
         file_menu.add_command(label="Save", command=self.action_save)
         file_menu.add_separator()
         file_menu.add_command(label="Generate", command=self.dummy_function)
@@ -214,6 +216,52 @@ class MainFrame(tk.Frame):
 
     def action_save(self):
         self.component_list.save_json()
+
+    def action_open(self):
+        file_path = filedialog.askopenfilename(defaultextension=".json", filetypes=[("JSON files", "*.json")])
+        if file_path:
+            self.load_from_json(file_path)
+
+    def load_from_json(self, file_path):
+        try:
+            with open(file_path, 'r') as json_file:
+                data = json.load(json_file)
+                self.load_components_from_data(data)
+        except Exception as e:
+            print(f"Error loading JSON file: {e}")
+
+    def load_components_from_data(self, data):
+        for component_data in data.get("components", []):
+            component_name = component_data.get("name", "")
+            category = component_data.get("category", "")
+            attributes = component_data.get("attributes", [])
+
+            component_class = self.find_component_class(category, component_name)
+            if component_class:
+                component_instance = component_class()
+                for attribute_data in attributes:
+                    attribute_name = attribute_data.get("attribute_name", "")
+                    attribute_value = attribute_data.get("attribute_value", "")
+                    component_instance.modify_value(attribute_name, attribute_value)
+
+                self.add_new_component(component_name, component_class)
+
+    def find_component_class(self, category, component_name):
+        component_path = f"./component/{category}/{component_name}.py"
+        module_name = os.path.splitext(os.path.basename(component_path))[0]
+
+        try:
+            with open(component_path, 'r') as file:
+                module_content = file.read()
+            namespace = {}
+            exec(module_content, namespace)
+            for name, obj in namespace.items():
+                if inspect.isclass(obj) and issubclass(obj, ComponentTemplate) and obj != ComponentTemplate:
+                    return obj
+        except Exception as e:
+            print(f"Error loading module: {module_name}, {e}")
+
+        return None
 
     def dummy_function(self):
         print("Function to be implemented.")
