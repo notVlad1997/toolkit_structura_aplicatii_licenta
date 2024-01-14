@@ -16,9 +16,9 @@ class ButtonTkinter(component_template.ComponentTemplate):
         if window is not None:
             self.component = tkinter.Button(window)
         self.component.config(
-            width=self.attribute_value[self.attribute_names.index("Width")],
-            height=self.attribute_value[self.attribute_names.index("Height")],
-            font=(self.attribute_value[self.attribute_names.index("Font")], 12),
-            bg=self.attribute_value[self.attribute_names.index("Background Color")],
+            width=self.attribute_values[self.attribute_names.index("Width")],
+            height=self.attribute_values[self.attribute_names.index("Height")],
+            font=(self.attribute_values[self.attribute_names.index("Font")], 12),
+            bg=self.attribute_values[self.attribute_names.index("Background Color")],
         )
         self.component.pack()

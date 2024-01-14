@@ -191,7 +191,7 @@ class MainFrame(tk.Frame):
 
         self.main_pane.add(left_pane, minsize=200)
         self.main_pane.add(middle_pane, minsize=600)
-        self.main_pane.add(right_pane, minsize=100)
+        self.main_pane.add(right_pane, minsize=500)
 
     """
     Method that implements the header.

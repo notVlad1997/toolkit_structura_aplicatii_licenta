@@ -15,7 +15,7 @@ class ComponentTemplate:
 
         self.attribute_names = []
         self.attribute_field = []
-        self.attribute_value = []
+        self.attribute_values = []
 
         self.update_attribute = []
 
@@ -32,7 +32,7 @@ class ComponentTemplate:
     def add_property(self, name, button_type, default_value):
         self.attribute_names.append(name)
         self.attribute_field.append(button_type)
-        self.attribute_value.append(default_value)
+        self.attribute_values.append(default_value)
 
     """
     Method which will show all the properties, with their current value.
@@ -46,7 +46,7 @@ class ComponentTemplate:
         for attr_field in self.attribute_field:
             print(f"  - {attr_field}")
         print("Attribute Values:")
-        for attr_value in self.attribute_value:
+        for attr_value in self.attribute_values:
             print(f"  - {attr_value}")
 
     """
@@ -57,9 +57,16 @@ class ComponentTemplate:
     def save_to_json(self, filename):
         data = {
             "name": self.name,
-            "attribute_names": self.attribute_names,
-            "attribute_value": self.attribute_value
+            "attributes": []
         }
+
+        for name, value in zip(self.attribute_names, self.attribute_values):
+            attribute_data = {
+                "attribute_name": name,
+                "attribute_value": value
+            }
+            data["attributes"].append(attribute_data)
+
         with open(filename, 'w') as json_file:
             json.dump(data, json_file, indent=2)
 
@@ -73,7 +80,9 @@ class ComponentTemplate:
         if attribute_name in self.attribute_names:
             index = self.attribute_names.index(attribute_name)
             attribute_type = self.attribute_field[index]
-            attribute_val = self.attribute_value[index]
+            attribute_val = self.attribute_values[index]
+            while len(self.update_attribute) <= index:
+                self.update_attribute.append(tk.StringVar())
             if attribute_type == "text":
                 self.update_attribute.append(tk.StringVar(value=attribute_val))
                 self.update_attribute[index].trace_add("write", lambda *args, i=index: self.update_value(i))
@@ -81,7 +90,7 @@ class ComponentTemplate:
             elif attribute_type == "slider":
                 self.update_attribute.append(tk.IntVar(value=attribute_val))
                 self.update_attribute[index].trace_add("write", lambda *args, i=index: self.update_value(i))
-                return tk.Scale(master, from_=0, to=100, orient=tk.HORIZONTAL, variable=self.update_attribute[index])
+                return tk.Scale(master, from_=0, to=1000, orient=tk.HORIZONTAL, variable=self.update_attribute[index])
             elif attribute_type == "table":
                 table_frame = tk.Frame(master)
                 table_frame.pack()
@@ -95,6 +104,50 @@ class ComponentTemplate:
                 data = attribute_val.split(',')
                 for value in data:
                     table.insert("", "end", values=(value,))
+
+                entry_var = tk.StringVar()
+                entry = tk.Entry(table_frame, textvariable=entry_var)
+                entry.grid(row=0, column=0)
+
+                def add_row():
+                    value = entry_var.get()
+                    if value:
+                        table.insert("", "end", values=(value,))
+                        entry_var.set("")
+                        index = self.attribute_names.index(attribute_name)
+                        updated_values = [table.item(item, 'values')[0] for item in table.get_children()]
+                        self.update_attribute[index].set(','.join(updated_values))
+                        self.update_value(index)
+
+                add_button = tk.Button(table_frame, text="Add Row", command=add_row)
+                add_button.grid(row=2, column=1)
+
+                def delete_row():
+                    selected_items = table.selection()
+                    for item in selected_items:
+                        table.delete(item)
+                        index = self.attribute_names.index(attribute_name)
+                        updated_values = [table.item(item, 'values')[0] for item in table.get_children()]
+                        self.update_attribute[index].set(','.join(updated_values))
+                        self.update_value(index)
+
+                delete_button = tk.Button(table_frame, text="Delete Selected", command=delete_row)
+                delete_button.grid(row=2, column=2)
+
+                def update_row():
+                    selected_item = table.selection()
+                    if selected_item:
+                        new_value = entry_var.get()
+                        table.item(selected_item, values=(new_value,))
+                        entry_var.set("")
+                        index = self.attribute_names.index(attribute_name)
+                        updated_values = [table.item(item, 'values')[0] for item in table.get_children()]
+                        self.update_attribute[index].set(','.join(updated_values))
+                        self.update_value(index)
+
+                update_button = tk.Button(table_frame, text="Update Selected", command=update_row)
+                update_button.grid(row=2, column=3)
+
                 return table_frame
             elif attribute_type == "color":
                 self.update_attribute.append(tk.StringVar(value=attribute_val))
@@ -114,7 +167,7 @@ class ComponentTemplate:
     :arg index: The location where the value is going to be modified in the list of attribute_value
     """
     def update_value(self, index):
-        self.attribute_value[index] = self.update_attribute[index].get()
+        self.attribute_values[index] = self.update_attribute[index].get()
         self.show_properties()
         self.update_component()
 
@@ -126,7 +179,7 @@ class ComponentTemplate:
     def modify_value(self, attribute_name, value):
         if attribute_name in self.attribute_names:
             index = self.attribute_names.index(attribute_name)
-            self.attribute_value[index] = value
+            self.attribute_values[index] = value
 
     """
     Method which creates and returns a UI Component
