@@ -101,7 +101,7 @@ class MainFrame(tk.Frame):
         button.pack(side=tk.TOP)
 
     """
-    Method that a new component on the window and it creates a new layer, and stores it.
+    Method that adds a new component on the window and it creates a new layer, and stores it.
     :arg attribute_name: Name of the attribute, that it will be added to the UI
     :arg element: Name of the class, that its going to be added as a new component. 
     """
@@ -110,12 +110,31 @@ class MainFrame(tk.Frame):
         component = element()
         self.component_list.add_component(component)
 
-        button = tk.Button(self.layer_pane, text=f"Layer {attribute_name}",
+        layer_frame = tk.Frame(self.layer_pane)
+        layer_frame.pack(side=tk.TOP)
+
+        button = tk.Button(layer_frame, text=f"Layer {attribute_name}",
                            command=lambda comp=component: self.properties_component(comp))
-        button.pack(side=tk.TOP)
+        button.pack(side=tk.LEFT)
 
         component_widget = component.return_component(self.window.interior_frame)
+
+        delete_button = tk.Button(layer_frame, text="Delete",
+                                  command=lambda comp=component,
+                                                 frame=layer_frame: self.delete_component(component, component_widget,
+                                                                                          layer_frame))
+        delete_button.pack(side=tk.RIGHT)
         component_widget.pack()
+
+    """
+    Method that activates when the "Delete" button is pressed.
+    It removes the layer, and the added component from frame.
+    """
+
+    def delete_component(self, component, component_added, layer_button):
+        self.component_list.remove_component(component)
+        layer_button.destroy()
+        component_added.destroy()
 
     """
     Method that it activates when the layer is pressed.
@@ -288,11 +307,11 @@ class MainFrame(tk.Frame):
 
                                     self.component_list.add_component(component_instance)
 
-                                    button_name = f"Layer {category_name} - {component_name}"
-                                    self.layer_button(button_name, component_instance)
-
                                     component_widget = component_instance.return_component(self.window.interior_frame)
                                     component_widget.pack()
+
+                                    button_name = f"Layer {category_name} - {component_name}"
+                                    self.layer_button(button_name, component_instance, component_widget)
 
                                     break
 
@@ -305,10 +324,20 @@ class MainFrame(tk.Frame):
             except Exception as e:
                 print(f"JSON File Error: {e}")
 
-    def layer_button(self, button_name, component_instance):
-        button = tk.Button(self.layer_pane, text=button_name,
+    def layer_button(self, button_name, component_instance, component_widget):
+        layer_frame = tk.Frame(self.layer_pane)
+        layer_frame.pack(side=tk.TOP)
+
+        button = tk.Button(layer_frame, text=button_name,
                            command=lambda comp=component_instance: self.properties_component(comp))
-        button.pack(side=tk.TOP)
+        button.pack(side=tk.LEFT)
+
+        delete_button = tk.Button(layer_frame, text="Delete", command=lambda comp=component_instance,
+                                                                             frame=layer_frame: self.delete_component(
+            component_instance, component_widget, layer_frame))
+
+        delete_button.pack(side=tk.RIGHT)
+        component_widget.pack()
 
     def dummy_function(self):
         print("Function to be implemented.")
