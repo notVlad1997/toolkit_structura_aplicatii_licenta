@@ -3,6 +3,7 @@ import json
 import os
 import tkinter as tk
 import inspect
+import sys
 from tkinter import filedialog
 
 from component_template import ComponentTemplate
@@ -251,8 +252,6 @@ class MainFrame(tk.Frame):
 
     def action_save(self):
         self.component_list.save_json()
-
-    import importlib
 
     def action_open(self):
         file_path = filedialog.askopenfilename(defaultextension=".json", filetypes=[("JSON files", "*.json")])

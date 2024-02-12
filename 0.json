@@ -1,22 +1,14 @@
 {
-  "name": "Button",
-  "category": "Tkinter",
+  "name": "Bar Color",
+  "category": "MatplotLib",
   "attributes": [
     {
-      "attribute_name": "Width",
-      "attribute_value": 5
+      "attribute_name": "X Data",
+      "attribute_value": "apple,blueberry,asda,orange"
     },
     {
-      "attribute_name": "Height",
-      "attribute_value": 1
-    },
-    {
-      "attribute_name": "Font",
-      "attribute_value": "Arial"
-    },
-    {
-      "attribute_name": "Background Color",
-      "attribute_value": "red"
+      "attribute_name": "Y Data",
+      "attribute_value": "40,100,30,55"
     }
   ]
 }
