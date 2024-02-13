@@ -3,7 +3,6 @@ import json
 import os
 import tkinter as tk
 import inspect
-import sys
 from tkinter import filedialog
 
 from component_template import ComponentTemplate
