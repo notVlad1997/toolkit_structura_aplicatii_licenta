@@ -3,10 +3,11 @@ import json
 import os
 import tkinter as tk
 import inspect
+from copy import copy
 from tkinter import filedialog
 
 from component_template import ComponentTemplate
-from ui.window import FrameWindow
+from ui.frame.window import FrameWindow
 from ui.components import WindowComponents
 
 
@@ -21,6 +22,8 @@ class MainFrame(tk.Frame):
 
     def __init__(self, master):
         super().__init__(master)
+        self.saved_layer_pane_elements = None
+        self.saved_window_elements = None
         self.master = master
 
         self.main_pane = None
@@ -29,15 +32,21 @@ class MainFrame(tk.Frame):
         self.window = None
         self.layer_pane = None
         self.properties_pane = None
+        self.windows_pane = None
 
         self.config(width=600, height=600)
         self.create_widgets()
         self.pack(fill=tk.BOTH, expand=True)
         self.rows = 1
 
-        self.component_list = WindowComponents()
+        self.component_list = []
+        self.windows_buttons = []
 
+        self.current_window_id = -1
         self.create_menu()
+
+        self.saved_layer_pane = None
+        self.saved_window = None
 
     """
     Method that creates the Category Panel for the Application.It includes all the folders from "component" folder.
@@ -47,7 +56,7 @@ class MainFrame(tk.Frame):
     def create_category_panel(self, left_pane):
         self.category_pane = tk.Canvas(left_pane, width=500, height=500)
         scrollbar = tk.Scrollbar(self.category_pane, command=self.category_pane.yview)
-        self.category_pane.config(yscrollcommand=scrollbar.set, scrollregion=(0, 0, 0, 2000))
+        # self.category_pane.config(yscrollcommand=scrollbar.set, scrollregion=(0, 0, 0, 2000))
         self.category_pane.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
@@ -108,7 +117,7 @@ class MainFrame(tk.Frame):
 
     def add_new_component(self, attribute_name, element):
         component = element()
-        self.component_list.add_component(component)
+        self.component_list[self.current_window_id].add_component(component)
 
         layer_frame = tk.Frame(self.layer_pane)
         layer_frame.pack(side=tk.TOP)
@@ -117,7 +126,7 @@ class MainFrame(tk.Frame):
                            command=lambda comp=component: self.properties_component(comp))
         button.pack(side=tk.LEFT)
 
-        component_widget = component.return_component(self.window.interior_frame)
+        component_widget = component.return_component(self.window)
 
         delete_button = tk.Button(layer_frame, text="Delete",
                                   command=lambda comp=component,
@@ -132,7 +141,7 @@ class MainFrame(tk.Frame):
     """
 
     def delete_component(self, component, component_added, layer_button):
-        self.component_list.remove_component(component)
+        self.component_list[self.current_window_id].remove_component(component)
         layer_button.destroy()
         component_added.destroy()
 
@@ -144,7 +153,7 @@ class MainFrame(tk.Frame):
 
     def properties_component(self, component_pressed):
         component = None
-        for comp in self.component_list.components:
+        for comp in self.component_list[self.current_window_id].components:
             if component_pressed == comp:
                 component = comp
                 break
@@ -188,7 +197,7 @@ class MainFrame(tk.Frame):
     def create_layers_panel(self, right_pane):
         self.layer_pane = tk.Canvas(right_pane, width=500, height=500)
         scrollbar = tk.Scrollbar(self.layer_pane, command=self.layer_pane.yview)
-        self.layer_pane.config(yscrollcommand=scrollbar.set, scrollregion=(0, 0, 0, 2000))
+        # self.layer_pane.config(yscrollcommand=scrollbar.set, scrollregion=(0, 0, 0, 2000))
         self.layer_pane.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
         right_pane.add(self.layer_pane, minsize=200)
@@ -213,12 +222,13 @@ class MainFrame(tk.Frame):
         left_pane = tk.PanedWindow(self.main_pane, orient=tk.VERTICAL, sashrelief=tk.RAISED, sashwidth=7)
         self.create_category_panel(left_pane)
 
-        middle_pane = tk.PanedWindow(self.main_pane, orient=tk.VERTICAL, sashrelief=tk.RAISED, sashwidth=7)
+        middle_pane = tk.Frame(self.main_pane)
         middle_pane.pack_propagate(False)
 
-        self.window = FrameWindow(master=middle_pane)
-        middle_pane.add(self.window, minsize=200)
+        self.windows_pane = tk.Frame(middle_pane, height=30, highlightbackground="gray60", highlightthickness=1)
+        self.windows_pane.pack(fill=tk.X)
 
+        self.window = FrameWindow(master=middle_pane)
         right_pane = tk.PanedWindow(self.main_pane, orient=tk.VERTICAL, sashrelief=tk.RAISED, sashwidth=7)
         right_pane.pack_propagate(False)
 
@@ -239,7 +249,7 @@ class MainFrame(tk.Frame):
 
         file_menu = tk.Menu(menubar, tearoff=0)
         menubar.add_cascade(label="File", menu=file_menu)
-        file_menu.add_command(label="New", command=self.dummy_function)
+        file_menu.add_command(label="New", command=self.action_new)
         file_menu.add_command(label="Open", command=self.action_open)
         file_menu.add_command(label="Save", command=self.action_save)
         file_menu.add_separator()
@@ -249,8 +259,48 @@ class MainFrame(tk.Frame):
 
         menubar.add_cascade(label="Settings", command=self.dummy_function)
 
+    def window_button_pressed(self, index):
+        for widget in self.layer_pane.winfo_children():
+            widget.destroy()
+
+        for widget in self.window.winfo_children():
+            widget.destroy()
+
+        self.window.update_values(height=600 - self.current_window_id * 100, width=400 - self.current_window_id * 100)
+
+        if hasattr(self, 'saved_layer_pane_elements') and hasattr(self, 'saved_window_elements'):
+            for widget in self.saved_layer_pane_elements:
+                clone = widget.winfo_class()
+                clone = clone(self.layer_pane)
+                clone.configure(**widget.configure())
+
+            for widget in self.saved_window_elements:
+                clone = widget.winfo_class()
+                clone = clone(self.window)
+                clone.configure(**widget.configure())
+
+    def action_new(self):
+        self.current_window_id = self.current_window_id + 1
+        self.component_list.append(WindowComponents())
+
+        self.saved_layer_pane_elements = [widget for widget in self.layer_pane.winfo_children()]
+        self.saved_window_elements = [widget for widget in self.window.winfo_children()]
+
+        for widget in self.layer_pane.winfo_children():
+            widget.destroy()
+
+        new_ui = tk.Button(self.windows_pane, text="Hello", command=lambda index=len(self.windows_buttons):
+        self.window_button_pressed(index=self.current_window_id))
+        self.windows_buttons.append(new_ui)
+        new_ui.pack(side=tk.LEFT, fill=tk.Y)
+
+        for widget in self.window.winfo_children():
+            widget.destroy()
+
+        self.window.update_values(height=600-self.current_window_id*100, width=400-self.current_window_id*100)
+
     def action_save(self):
-        self.component_list.save_json()
+        self.component_list[self.current_window_id].save_json()
 
     def action_open(self):
         file_path = filedialog.askopenfilename(defaultextension=".json", filetypes=[("JSON files", "*.json")])
@@ -303,9 +353,9 @@ class MainFrame(tk.Frame):
                                                                         value=attribute_value)
                                         component_instance.show_properties()
 
-                                    self.component_list.add_component(component_instance)
+                                    self.component_list[self.current_window_id].add_component(component_instance)
 
-                                    component_widget = component_instance.return_component(self.window.interior_frame)
+                                    component_widget = component_instance.return_component(self.window)
                                     component_widget.pack()
 
                                     button_name = f"Layer {category_name} - {component_name}"

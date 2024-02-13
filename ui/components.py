@@ -3,6 +3,8 @@ from component_template import ComponentTemplate
 """
 Class that stores all the elements that are going to be linked for the JSON UI.
 """
+
+
 class WindowComponents:
     def __init__(self):
         self.components = []

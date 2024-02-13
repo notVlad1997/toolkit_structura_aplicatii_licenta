@@ -1,5 +1,4 @@
 import tkinter
-
 import component_template
 
 
