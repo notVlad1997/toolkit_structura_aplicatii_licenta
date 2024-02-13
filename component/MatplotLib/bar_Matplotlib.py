@@ -51,6 +51,7 @@ class BarDiagram(component_template.ComponentTemplate):
         if self.canvas is None:
             self.canvas = FigureCanvasTkAgg(self.fig, master=self.component)
             self.canvas.get_tk_widget().config(width=300, height=200)
+            self.canvas.get_tk_widget().pack()
 
         self.canvas.draw()
         self.canvas.get_tk_widget().pack()

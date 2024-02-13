@@ -45,9 +45,6 @@ class MainFrame(tk.Frame):
         self.current_window_id = -1
         self.create_menu()
 
-        self.saved_layer_pane = None
-        self.saved_window = None
-
     """
     Method that creates the Category Panel for the Application.It includes all the folders from "component" folder.
     :arg left_pane: Panel on which the Category will be added.
@@ -264,40 +261,61 @@ class MainFrame(tk.Frame):
             widget.destroy()
 
         for widget in self.window.winfo_children():
-            widget.destroy()
+            if hasattr(widget, 'id'):
+                if not widget.id == f"Title Bar":
+                    widget.destroy()
+            else:
+                widget.destroy()
 
-        self.window.update_values(height=600 - self.current_window_id * 100, width=400 - self.current_window_id * 100)
+        components = self.component_list[index].components
 
-        if hasattr(self, 'saved_layer_pane_elements') and hasattr(self, 'saved_window_elements'):
-            for widget in self.saved_layer_pane_elements:
-                clone = widget.winfo_class()
-                clone = clone(self.layer_pane)
-                clone.configure(**widget.configure())
+        for component in components:
+            layer_frame = tk.Frame(self.layer_pane)
+            layer_frame.pack(side=tk.TOP)
 
-            for widget in self.saved_window_elements:
-                clone = widget.winfo_class()
-                clone = clone(self.window)
-                clone.configure(**widget.configure())
+            button_name = f"Layer {component.name}"
+            button = tk.Button(layer_frame, text=button_name,
+                               command=lambda comp=component: self.properties_component(comp))
+            button.pack(side=tk.LEFT)
+
+            delete_button = tk.Button(layer_frame, text="Delete",
+                                      command=lambda comp=component, frame=layer_frame: self.delete_component(comp,
+                                                                                                              comp.return_component(
+                                                                                                                  self.window),
+                                                                                                              frame))
+            delete_button.pack(side=tk.RIGHT)
+
+            component_widget = component.return_component(self.window)
+            component_widget.pack()
+
+        self.current_window_id = index
 
     def action_new(self):
         self.current_window_id = self.current_window_id + 1
         self.component_list.append(WindowComponents())
 
-        self.saved_layer_pane_elements = [widget for widget in self.layer_pane.winfo_children()]
-        self.saved_window_elements = [widget for widget in self.window.winfo_children()]
-
         for widget in self.layer_pane.winfo_children():
-            widget.destroy()
-
-        new_ui = tk.Button(self.windows_pane, text="Hello", command=lambda index=len(self.windows_buttons):
-        self.window_button_pressed(index=self.current_window_id))
-        self.windows_buttons.append(new_ui)
-        new_ui.pack(side=tk.LEFT, fill=tk.Y)
+            if not isinstance(widget, tk.Scrollbar):
+                widget.destroy()
 
         for widget in self.window.winfo_children():
-            widget.destroy()
+            if hasattr(widget, 'id'):
+                if not widget.id == "Title Bar":
+                    widget.destroy()
+            else:
+                widget.destroy()
 
-        self.window.update_values(height=600-self.current_window_id*100, width=400-self.current_window_id*100)
+        middle_pane_id = self.window.winfo_parent()
+        self.window.destroy()
+        self.window = FrameWindow(self.window._nametowidget(middle_pane_id), height=400 - self.current_window_id * 100,
+                                  width=600 - self.current_window_id * 100)
+        self.saved_layer_pane_elements = copy(self.layer_pane)
+        self.saved_window_elements = [widget for widget in self.window.winfo_children()]
+
+        new_ui = tk.Button(self.windows_pane, text="Hello", command=lambda index=len(self.windows_buttons):
+        self.window_button_pressed(index=index))
+        self.windows_buttons.append(new_ui)
+        new_ui.pack(side=tk.LEFT, fill=tk.Y)
 
     def action_save(self):
         self.component_list[self.current_window_id].save_json()

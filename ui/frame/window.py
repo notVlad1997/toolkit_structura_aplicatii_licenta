@@ -11,6 +11,8 @@ class FrameWindow(tk.Frame):
         self.pack_propagate(False)
 
         self.title_button_bar = tk.Frame(self, height=25, relief="raised")
+        self.title_button_bar.id = f"Title Bar"
+
         self.title_button_bar.pack(fill="x")
         self.title_button_bar.pack_propagate(False)
 
@@ -34,6 +36,7 @@ class FrameWindow(tk.Frame):
 
         self.separator = tk.Frame(self, height=2, relief="sunken", background="gray")
         self.separator.pack(side="top", fill="x", pady=2)
+        self.separator.id = f"Title Bar"
 
         self.pack(expand=True, fill=tk.BOTH, padx=10, pady=10)
         self.place(relx=0.5, rely=0.5, anchor="center")
