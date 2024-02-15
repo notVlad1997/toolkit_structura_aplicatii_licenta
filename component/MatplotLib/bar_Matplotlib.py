@@ -21,11 +21,11 @@ class BarDiagram(component_template.ComponentTemplate):
         if window is not None:
             self.component = tk.Frame(window)
             self.component.pack()
+            if self.canvas is not None:
+                self.canvas = FigureCanvasTkAgg(self.fig, master=self.component)
 
         x_data = self.attribute_values[self.attribute_names.index("X Data")].split(',')
         y_data = [int(value) for value in self.attribute_values[self.attribute_names.index("Y Data")].split(',')]
-        # bar_labels = self.attribute_values[self.attribute_names.index("Bar Labels")].split(',')
-        # bar_colors = self.attribute_values[self.attribute_names.index("Bar Colors")].split(',')
 
         if self.ax is not None:
             for bar in self.ax.patches:
@@ -55,3 +55,6 @@ class BarDiagram(component_template.ComponentTemplate):
 
         self.canvas.draw()
         self.canvas.get_tk_widget().pack()
+
+        # bar_labels = self.attribute_values[self.attribute_names.index("Bar Labels")].split(',')
+        # bar_colors = self.attribute_values[self.attribute_names.index("Bar Colors")].split(',')

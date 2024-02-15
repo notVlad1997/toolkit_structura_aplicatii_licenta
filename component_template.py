@@ -20,7 +20,7 @@ class ComponentTemplate:
 
         self.update_attribute = []
 
-        self.component = ""
+        self.component = None
         self.color_options = ["white", "black", "red", "green", "blue", "yellow", "purple", "orange"]
 
 
@@ -204,3 +204,6 @@ class ComponentTemplate:
     """
     def update_component(self, window=None):
         print('Nothing')
+
+    def destroy_component(self):
+        self.component = ""
