@@ -28,6 +28,7 @@ class MainFrame(tk.Frame):
         self.master = master
 
         self.main_pane = None
+        self.middle_pane = None
         self.category_pane = None
         self.component_pane = None
         self.window = None
@@ -46,6 +47,7 @@ class MainFrame(tk.Frame):
 
         self.current_window_id = -1
         self.create_menu()
+
 
     """
     Method that creates the Category Panel for the Application.It includes all the folders from "component" folder.
@@ -132,10 +134,8 @@ class MainFrame(tk.Frame):
                                                  frame=layer_frame: self.delete_component(component, component_widget,
                                                                                           layer_frame))
         delete_button.pack(side=tk.RIGHT)
-        component_widget.pack()
         if str(element) == f"<class 'FrameTkinter'>":
             self.frames_list[self.current_window_id].add_component(component_widget)
-
 
     """
     Method that activates when the "Delete" button is pressed.
@@ -233,14 +233,15 @@ class MainFrame(tk.Frame):
         left_pane = tk.PanedWindow(self.main_pane, orient=tk.VERTICAL, sashrelief=tk.RAISED, sashwidth=7)
         self.create_category_panel(left_pane)
 
-        middle_pane = tk.Frame(self.main_pane)
-        middle_pane.pack_propagate(False)
-        self.window = middle_pane
+        self.middle_pane = tk.Frame(self.main_pane)
+        self.middle_pane.pack_propagate(False)
 
-        self.windows_pane = tk.Frame(middle_pane, height=30, highlightbackground="gray60", highlightthickness=1)
+        self.window = self.middle_pane
+
+        self.windows_pane = tk.Frame(self.middle_pane, height=30, highlightbackground="gray60", highlightthickness=1)
         self.windows_pane.pack(fill=tk.X)
+        self.windows_pane.id = "New Windows"
 
-        # self.window = FrameWindow(master=middle_pane)
         right_pane = tk.PanedWindow(self.main_pane, orient=tk.VERTICAL, sashrelief=tk.RAISED, sashwidth=7)
         right_pane.pack_propagate(False)
 
@@ -248,7 +249,7 @@ class MainFrame(tk.Frame):
         self.create_properties_panel(right_pane)
 
         self.main_pane.add(left_pane, minsize=200)
-        self.main_pane.add(middle_pane, minsize=600)
+        self.main_pane.add(self.middle_pane, minsize=600)
         self.main_pane.add(right_pane, minsize=500)
 
     """
@@ -306,34 +307,34 @@ class MainFrame(tk.Frame):
         self.current_window_id = index
 
     def action_new(self):
-        self.current_window_id = self.current_window_id + 1
-        self.component_list.append(WindowComponents())
-        self.frames_list.append(WindowComponents())
-
         for widget in self.layer_pane.winfo_children():
             if not isinstance(widget, tk.Scrollbar):
                 widget.destroy()
 
-        # for widget in self.window.winfo_children():
-        #     if hasattr(widget, 'id'):
-        #         if not widget.id == "Title Bar":
-        #             widget.destroy()
-        #     else:
-        #         widget.destroy()
+        is_mainpane = False
+        for widget in self.window.winfo_children():
+            if hasattr(widget, 'id'):
+                if widget.id == "New Windows":
+                    is_mainpane = True
+                    break
+                elif not widget.id == "Title Bar":
+                    widget.destroy()
+            else:
+                widget.destroy()
 
-        # middle_pane_id = self.window.winfo_parent()
-        # parent = self.window.winfo_parent
-        # if self.window._nametowidget(parent) is not self:
-        #     self.window.destroy()
+        if is_mainpane is False:
+            self.component_list[self.current_window_id].get_component(0).return_component().destroy()
+            self.window = self.middle_pane
+
+        self.current_window_id = self.current_window_id + 1
+        self.component_list.append(WindowComponents())
+        self.frames_list.append(WindowComponents())
+
         self.add_new_component("TK", FrameWindowTK)
         component_widget = self.component_list[self.current_window_id].get_component(0).return_component().content_frame
-        # component_widget.pack(relx=.5, rely=.5, anchor="center")
 
         self.frames_list[self.current_window_id].add_component(component_widget)
-        self.window=component_widget
-        # self.window.destroy()
-        # self.window = FrameWindow(self.window._nametowidget(middle_pane_id), height=400 - self.current_window_id * 100,
-        #                           width=600 - self.current_window_id * 100)
+        self.window = component_widget
 
         self.saved_layer_pane_elements = copy(self.layer_pane)
         self.saved_window_elements = [widget for widget in self.window.winfo_children()]

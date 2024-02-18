@@ -38,7 +38,7 @@ class FrameWindow(tk.Frame):
         self.separator.pack(side="top", fill="x", pady=2)
         self.separator.id = f"Title Bar"
 
-        self.content_frame = tk.Frame(self, relief="sunken", background="white")
+        self.content_frame = tk.Frame(self, relief="sunken")
         self.content_frame.pack(expand=True, fill=tk.BOTH)
 
         self.pack(expand=True, fill=tk.BOTH, padx=10, pady=10)

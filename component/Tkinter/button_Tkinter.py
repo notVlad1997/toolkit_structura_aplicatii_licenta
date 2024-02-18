@@ -15,8 +15,8 @@ class ButtonTkinter(component_template.ComponentTemplate):
         if window is not None:
             self.component = tkinter.Button(window)
         else:
-            # self.component.pack_forget()
-            self.component.destroy()
+            self.component.pack_forget()
+            # self.component.destroy()
             frame_name = self.attribute_values[self.attribute_names.index("Frame")]
             frame = None
             for fram in self.frames_choice:
