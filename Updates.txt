@@ -1,0 +1,30 @@
+--FRAMEURI
+Sa se modifice layerele sa afiseze componentele sub frameurile la care se afla
+Sa se actualizeze metoda de schimbare de panouri
+
+
+
+--OPEN
+Deschiderea unui intreg folder care contine .json-uri
+--GENERATE
+Generea unui cod/program executabil
+--ADAUGARE ACTIUNI
+Sa poti crea actiuni pentru butoane, drag and drop etc.
+--LAYERE
+Sa poti sa muti layere
+Sa poti sa dai nume la layere(care ulterior cand se salveaza un fisier sa devina chiar numele fisierului .json)
+
+EXTRA
+--GPT
+Adaugare crearea de .json-uri pentru interfere folosind templateuri
+Adaugare suport pentru adaugarea de noi componente folosind GPT
+--Marketplace
+Acelasi lucru ca la GPT doar ca folosind un marketplace
+
+
+UPDATE-URI DRAGUTE
+mai multe tipuri de slidere
+--SALVAREA
+Sa te intrebe unde vrei sa il salvezi
+--TABELE
+Sa se poata adauga si baze de date
