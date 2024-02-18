@@ -6,8 +6,9 @@ import inspect
 from copy import copy
 from tkinter import filedialog
 
+from ui.frame.layer_window import FrameWindowTK
 from component_template import ComponentTemplate
-from ui.frame.window import FrameWindow
+# from ui.frame.window import FrameWindow
 from ui.components import WindowComponents
 
 
@@ -40,6 +41,7 @@ class MainFrame(tk.Frame):
         self.rows = 1
 
         self.component_list = []
+        self.frames_list = []
         self.windows_buttons = []
 
         self.current_window_id = -1
@@ -53,7 +55,7 @@ class MainFrame(tk.Frame):
     def create_category_panel(self, left_pane):
         self.category_pane = tk.Canvas(left_pane, width=500, height=500)
         scrollbar = tk.Scrollbar(self.category_pane, command=self.category_pane.yview)
-        # self.category_pane.config(yscrollcommand=scrollbar.set, scrollregion=(0, 0, 0, 2000))
+        self.category_pane.config(yscrollcommand=scrollbar.set, scrollregion=(0, 0, 0, 2000))
         self.category_pane.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
@@ -88,7 +90,7 @@ class MainFrame(tk.Frame):
                     exec(module_content, namespace)
                     for name, obj in namespace.items():
                         if inspect.isclass(obj) and issubclass(obj, ComponentTemplate) and obj != ComponentTemplate:
-                            component_instance = obj()
+                            component_instance = obj(self.frames_list[self.current_window_id].get_component_list())
                             self.category_button(component_instance.name, obj)
                 except Exception as e:
                     print(f"Error loading module: {module_name}, {e}")
@@ -113,7 +115,7 @@ class MainFrame(tk.Frame):
     """
 
     def add_new_component(self, attribute_name, element):
-        component = element()
+        component = element(self.frames_list[self.current_window_id].get_component_list())
         self.component_list[self.current_window_id].add_component(component)
 
         layer_frame = tk.Frame(self.layer_pane)
@@ -131,6 +133,9 @@ class MainFrame(tk.Frame):
                                                                                           layer_frame))
         delete_button.pack(side=tk.RIGHT)
         component_widget.pack()
+        if str(element) == f"<class 'FrameTkinter'>":
+            self.frames_list[self.current_window_id].add_component(component_widget)
+
 
     """
     Method that activates when the "Delete" button is pressed.
@@ -138,6 +143,8 @@ class MainFrame(tk.Frame):
     """
 
     def delete_component(self, component, component_added, layer_button):
+        if str(component.__class__) == f"<class 'FrameTkinter'>":
+            self.frames_list[self.current_window_id].remove_component(component.return_component())
         self.component_list[self.current_window_id].remove_component(component)
         layer_button.destroy()
         component_added.destroy()
@@ -157,7 +164,14 @@ class MainFrame(tk.Frame):
         if component:
             self.display_component_properties(component)
         else:
-            print("Component not found.")
+            for frames in self.frames_list[self.current_window_id].components:
+                if component_pressed == frames:
+                    component = frames
+                    break
+            if component:
+                self.display_component_properties(component)
+            else:
+                print('No component for properties')
 
     """
     Method that display all the options that can be edited in the UI.
@@ -194,7 +208,7 @@ class MainFrame(tk.Frame):
     def create_layers_panel(self, right_pane):
         self.layer_pane = tk.Canvas(right_pane, width=500, height=500)
         scrollbar = tk.Scrollbar(self.layer_pane, command=self.layer_pane.yview)
-        # self.layer_pane.config(yscrollcommand=scrollbar.set, scrollregion=(0, 0, 0, 2000))
+        self.layer_pane.config(yscrollcommand=scrollbar.set, scrollregion=(0, 0, 0, 2000))
         self.layer_pane.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
         right_pane.add(self.layer_pane, minsize=200)
@@ -221,11 +235,12 @@ class MainFrame(tk.Frame):
 
         middle_pane = tk.Frame(self.main_pane)
         middle_pane.pack_propagate(False)
+        self.window = middle_pane
 
         self.windows_pane = tk.Frame(middle_pane, height=30, highlightbackground="gray60", highlightthickness=1)
         self.windows_pane.pack(fill=tk.X)
 
-        self.window = FrameWindow(master=middle_pane)
+        # self.window = FrameWindow(master=middle_pane)
         right_pane = tk.PanedWindow(self.main_pane, orient=tk.VERTICAL, sashrelief=tk.RAISED, sashwidth=7)
         right_pane.pack_propagate(False)
 
@@ -293,22 +308,33 @@ class MainFrame(tk.Frame):
     def action_new(self):
         self.current_window_id = self.current_window_id + 1
         self.component_list.append(WindowComponents())
+        self.frames_list.append(WindowComponents())
 
         for widget in self.layer_pane.winfo_children():
             if not isinstance(widget, tk.Scrollbar):
                 widget.destroy()
 
-        for widget in self.window.winfo_children():
-            if hasattr(widget, 'id'):
-                if not widget.id == "Title Bar":
-                    widget.destroy()
-            else:
-                widget.destroy()
+        # for widget in self.window.winfo_children():
+        #     if hasattr(widget, 'id'):
+        #         if not widget.id == "Title Bar":
+        #             widget.destroy()
+        #     else:
+        #         widget.destroy()
 
-        middle_pane_id = self.window.winfo_parent()
-        self.window.destroy()
-        self.window = FrameWindow(self.window._nametowidget(middle_pane_id), height=400 - self.current_window_id * 100,
-                                  width=600 - self.current_window_id * 100)
+        # middle_pane_id = self.window.winfo_parent()
+        # parent = self.window.winfo_parent
+        # if self.window._nametowidget(parent) is not self:
+        #     self.window.destroy()
+        self.add_new_component("TK", FrameWindowTK)
+        component_widget = self.component_list[self.current_window_id].get_component(0).return_component().content_frame
+        # component_widget.pack(relx=.5, rely=.5, anchor="center")
+
+        self.frames_list[self.current_window_id].add_component(component_widget)
+        self.window=component_widget
+        # self.window.destroy()
+        # self.window = FrameWindow(self.window._nametowidget(middle_pane_id), height=400 - self.current_window_id * 100,
+        #                           width=600 - self.current_window_id * 100)
+
         self.saved_layer_pane_elements = copy(self.layer_pane)
         self.saved_window_elements = [widget for widget in self.window.winfo_children()]
 

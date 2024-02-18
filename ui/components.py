@@ -9,10 +9,11 @@ class WindowComponents:
     def __init__(self):
         self.components = []
 
+    def get_component_list(self):
+        return self.components
+
     def add_component(self, component):
         self.components.append(component)
-        if isinstance(component, ComponentTemplate):
-            component.show_properties()
 
     def remove_component(self, component):
         self.components.remove(component)
@@ -22,6 +23,12 @@ class WindowComponents:
         found_component = self.components[index]
         if issubclass(found_component, ComponentTemplate):
             found_component.modify_value(attribute_name, value)
+
+    def get_component(self, index):
+        return self.components[index]
+
+    def get_size(self):
+        return len(self.components)
 
     def save_json(self):
         for component in self.components:

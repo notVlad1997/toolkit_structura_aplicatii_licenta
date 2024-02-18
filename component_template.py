@@ -9,7 +9,8 @@ class ComponentTemplate:
     """
     Constructor
     """
-    def __init__(self, name, category):
+
+    def __init__(self, name, category, frames=None):
         self.name = name
 
         self.category = category
@@ -19,10 +20,12 @@ class ComponentTemplate:
         self.attribute_values = []
 
         self.update_attribute = []
+        self.frames_choice = frames
 
         self.component = None
         self.color_options = ["white", "black", "red", "green", "blue", "yellow", "purple", "orange"]
 
+        self.add_property(name="Frame", button_type="dropdown", default_value=self.frames_choice)
 
     """
     Method which will add a new attribute, that can be modified.
@@ -31,6 +34,7 @@ class ComponentTemplate:
     :arg button_type: The name of the input type that will be used in the UI.
     :arg default_value: The default value for the new item added.
     """
+
     def add_property(self, name, button_type, default_value):
         self.attribute_names.append(name)
         self.attribute_field.append(button_type)
@@ -39,6 +43,7 @@ class ComponentTemplate:
     """
     Method which will show all the properties, with their current value.
     """
+
     def show_properties(self):
         print(f"Component Name: {self.name}")
         print("Attribute Names:")
@@ -164,6 +169,13 @@ class ComponentTemplate:
                 color_menu = tk.OptionMenu(master, self.update_attribute[index], *self.color_options)
 
                 return color_menu
+            elif attribute_type == "dropdown":
+                self.update_attribute.append(tk.StringVar(value=attribute_val))
+                self.update_attribute[index].trace_add("write", lambda *args, i=index: self.update_value(i))
+
+                dropdown = tk.OptionMenu(master, self.update_attribute[index], *attribute_val)
+
+                return dropdown
             else:
                 return f"Tip de atribut necunoscut: {attribute_type}"
         else:
@@ -174,6 +186,7 @@ class ComponentTemplate:
     It updates both the UI Interface, and the storage.
     :arg index: The location where the value is going to be modified in the list of attribute_value
     """
+
     def update_value(self, index):
         self.attribute_values[index] = self.update_attribute[index].get()
         self.show_properties()
@@ -184,6 +197,7 @@ class ComponentTemplate:
     :arg attribute_name: The name of the attribute that is required
     :arg value: The name of the  in which the option will be added.
     """
+
     def modify_value(self, attribute_name, value):
         if attribute_name in self.attribute_names:
             index = self.attribute_names.index(attribute_name)
@@ -194,16 +208,29 @@ class ComponentTemplate:
     """
     Method which creates and returns a UI Component
     """
+
     def return_component(self, window=None):
         self.update_component(window)
         return self.component
 
-    """
-    Method which updates the compononent UI.
-    It must be implemented at the class itself
-    """
     def update_component(self, window=None):
+        """
+        Method which updates the compononent UI.
+        It must be implemented at the class itself
+        """
         print('Nothing')
 
-    def destroy_component(self):
-        self.component = ""
+    def remove_property(self, attribute_name):
+        """
+        Method to remove a property from the component template.
+        :param attribute_name: The name of the property to be removed.
+        """
+        if attribute_name in self.attribute_names:
+            index = self.attribute_names.index(attribute_name)
+            del self.attribute_names[index]
+            del self.attribute_field[index]
+            del self.attribute_values[index]
+            if index < len(self.update_attribute):
+                del self.update_attribute[index]
+        else:
+            print(f"Property '{attribute_name}' not found in the list of attributes.")
