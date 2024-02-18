@@ -8,13 +8,7 @@ from tkinter import filedialog
 
 from ui.frame.layer_window import FrameWindowTK
 from component_template import ComponentTemplate
-# from ui.frame.window import FrameWindow
 from ui.components import WindowComponents
-
-
-def modify():
-    print("TO DO")
-
 
 class MainFrame(tk.Frame):
     """
@@ -273,6 +267,7 @@ class MainFrame(tk.Frame):
         menubar.add_cascade(label="Settings", command=self.dummy_function)
 
     def window_button_pressed(self, index):
+        self.component_list[self.current_window_id].get_component(0).return_component().destroy()
         for widget in self.layer_pane.winfo_children():
             widget.destroy()
 
@@ -301,7 +296,7 @@ class MainFrame(tk.Frame):
                                                                                                               frame))
             delete_button.pack(side=tk.RIGHT)
 
-            component_widget = component.return_component(self.window)
+            component_widget = component.return_component()
             component_widget.pack()
 
         self.current_window_id = index
