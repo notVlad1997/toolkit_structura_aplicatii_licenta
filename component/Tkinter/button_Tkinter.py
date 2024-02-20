@@ -14,6 +14,7 @@ class ButtonTkinter(component_template.ComponentTemplate):
     def update_component(self, window=None):
         if window is not None:
             self.component = tkinter.Button(window)
+
         else:
             self.component.destroy()
             frame_name = self.attribute_values[self.attribute_names.index("Frame")]

@@ -1,6 +1,6 @@
 import tkinter as tk
-from tkinter import ttk
 from component_template import ComponentTemplate
+
 
 class LabelTkinter(ComponentTemplate):
     def __init__(self, frames):
