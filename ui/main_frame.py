@@ -52,12 +52,7 @@ class MainFrame(tk.Frame):
         :param left_pane: Panel on which the Category will be added.
         :return:
         """
-        self.category_pane = tk.Canvas(left_pane, width=500, height=500)
-        scrollbar = tk.Scrollbar(self.category_pane, command=self.category_pane.yview)
-        scrollbar.id = 'Scrollbar'
-        self.category_pane.config(yscrollcommand=scrollbar.set, scrollregion=(0, 0, 0, 2000))
-        self.category_pane.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        self.category_pane = self.create_scrollbar_pane(left_pane)
 
         component_path = "./component"
         folders = [folder for folder in os.listdir(component_path) if
@@ -198,21 +193,14 @@ class MainFrame(tk.Frame):
             attribute_component.pack(side=tk.TOP)
         self.properties_pane.update_idletask()
 
-
     def create_components_panel(self, left_pane):
         """
         Method that adds a frame for the component panel to be added.
         :param left_pane: Frame that will contain all the buttons of Components.
         :return:
         """
-        self.component_pane = tk.Canvas(left_pane, width=500, height=500)
-        scrollbar = tk.Scrollbar(self.component_pane, command=self.component_pane.yview)
-        self.component_pane.config(yscrollcommand=scrollbar.set, scrollregion=(0, 0, 0, 2000))
-        self.component_pane.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        self.component_pane = self.create_scrollbar_pane(left_pane)
 
-        left_pane.add(self.category_pane, minsize=200)
-        left_pane.add(self.component_pane, minsize=200)
 
     def create_layers_panel(self, right_pane):
         """
@@ -220,12 +208,7 @@ class MainFrame(tk.Frame):
         :param right_pane: Frame that will contain all the buttons of Layer.
         :return:
         """
-        self.layer_pane = tk.Canvas(right_pane, width=500, height=500)
-        scrollbar = tk.Scrollbar(self.layer_pane, command=self.layer_pane.yview)
-        self.layer_pane.config(yscrollcommand=scrollbar.set, scrollregion=(0, 0, 0, 2000))
-        self.layer_pane.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-        right_pane.add(self.layer_pane, minsize=200)
+        self.layer_pane = self.create_scrollbar_pane(right_pane)
 
     def create_properties_panel(self, right_pane):
         """
@@ -233,22 +216,7 @@ class MainFrame(tk.Frame):
         :args left_pane: Frame that will contain all the buttons of Properties.
         :return:
         """
-        frame = tk.Frame(right_pane)
-        frame.pack(fill=tk.BOTH, expand=tk.YES)
-
-        scrollbar = tk.Scrollbar(frame, orient=tk.VERTICAL)
-        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-
-        canvas = AutoAdjustCanvas(frame, yscrollcommand=scrollbar.set)
-        canvas.bind("<Configure>", lambda event: canvas.configure(
-            scrollregion=canvas.bbox("all")))
-
-        scrollbar.config(command=canvas.yview)
-        canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-
-        self.properties_pane = canvas.container
-
-        right_pane.add(frame, minsize=200)
+        self.properties_pane = self.create_scrollbar_pane(right_pane)
 
     def create_widgets(self):
         """
@@ -485,5 +453,22 @@ class MainFrame(tk.Frame):
         delete_button.pack(side=tk.RIGHT)
         component_widget.pack()
 
+    def create_scrollbar_pane(self, display_pane):
+        """
+        Method that creates a new scrollbar pane and adds it to the display frame
+        :param display_pane: The frame where the scrollbar pane will be placed
+        :return: The Scrollbar pane
+        """
+        frame = tk.Frame(display_pane)
+        frame.pack(fill=tk.BOTH, expand=tk.YES)
+        scrollbar = tk.Scrollbar(frame, orient=tk.VERTICAL)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        canvas = AutoAdjustCanvas(frame, yscrollcommand=scrollbar.set)
+        canvas.bind("<Configure>", lambda event: canvas.configure(
+            scrollregion=canvas.bbox("all")))
+        scrollbar.config(command=canvas.yview)
+        canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        display_pane.add(frame, minsize=200)
+        return canvas.container
     def dummy_function(self):
         print("Function to be implemented.")

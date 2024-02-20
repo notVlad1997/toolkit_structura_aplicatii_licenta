@@ -20,12 +20,15 @@ Sa poti crea actiuni pentru butoane, drag and drop etc.
 Sa poti sa muti layere
 Sa poti sa dai nume la layere(care ulterior cand se salveaza un fisier sa devina chiar numele fisierului .json)
 
+--LIBRARY
+Adaugare suport de a salva functionalitate ca sa fie refolosita
+
 EXTRA
 --GPT
 Adaugare crearea de .json-uri pentru interfere folosind templateuri
 Adaugare suport pentru adaugarea de noi componente folosind GPT
 --Marketplace
-Acelasi lucru ca la GPT doar ca folosind un marketplace
+Acelasi lucru ca la GPT doar ca folosind un marketplace -- NU E TIMP
 
 
 UPDATE-URI DRAGUTE
