@@ -191,7 +191,6 @@ class MainFrame(tk.Frame):
 
             attribute_component = component.get_attribute_component(attribute_name, master=self.properties_pane)
             attribute_component.pack(side=tk.TOP)
-        self.properties_pane.update_idletask()
 
     def create_components_panel(self, left_pane):
         """

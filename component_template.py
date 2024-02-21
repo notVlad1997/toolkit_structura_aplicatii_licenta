@@ -1,16 +1,20 @@
 from tkinter import ttk
 
 import json
-import os
 import tkinter as tk
 
 
 class ComponentTemplate:
-    """
-    Constructor
-    """
-
     def __init__(self, name, category, frames=None):
+        """
+        Constructor.
+        :param name: Name of the class
+        :param category: Category which is included, must be specified as the folder name where it belongs
+        egs:
+        component/Frame/component.py
+        category = "Frame"
+        :param frames: All the other frames, of which components can be switched, can be left empty if unwanted, or it can be removed.
+        """
         self.name = name
 
         self.category = category
@@ -25,26 +29,27 @@ class ComponentTemplate:
         self.component = None
         self.color_options = ["white", "black", "red", "green", "blue", "yellow", "purple", "orange"]
 
-        self.add_property(name="Frame", button_type="dropdown", default_value=self.frames_choice)
+        if frames is not None:
+            self.add_property(name="Frame", button_type="dropdown", default_value=self.frames_choice)
 
-    """
-    Method which will add a new attribute, that can be modified.
-    :arg name: The name of the property that will be shown in the UI app.
-    :arg json_attribute: The name of the attribute that will be added in the .json file.
-    :arg button_type: The name of the input type that will be used in the UI.
-    :arg default_value: The default value for the new item added.
-    """
 
     def add_property(self, name, button_type, default_value):
+        """
+        Method which will add a new attribute, that can be modified.
+        :param name: The name of the property that will be shown in the UI app.
+        :param button_type: The name of the input type that will be used in the UI.
+        :param default_value: The default value for the new item added.
+        :return:
+        """
         self.attribute_names.append(name)
         self.attribute_field.append(button_type)
         self.attribute_values.append(default_value)
 
-    """
-    Method which will show all the properties, with their current value.
-    """
-
     def show_properties(self):
+        """
+        Method which will show all the properties, with their current value.
+        :return:
+        """
         print(f"Component Name: {self.name}")
         print("Attribute Names:")
         for attr_name in self.attribute_names:
@@ -56,12 +61,12 @@ class ComponentTemplate:
         for attr_value in self.attribute_values:
             print(f"  - {attr_value}")
 
-    """
-    Method which will add all the properties into a .json file.
-    :arg filename: The name of the file in which will be saved. 
-    """
-
     def save_to_json(self, filename):
+        """
+        Method which will add all the properties into a .json file.
+        :param filename: The name of the file in which will be saved.
+        :return:
+        """
         data = {
             "name": self.name,
             "category": self.category,
@@ -79,18 +84,23 @@ class ComponentTemplate:
             json.dump(data, json_file, indent=2)
 
     def load_components_from_data(self, data):
+        """
+        Method that loads the attributes, into self
+        :param data: Data which is going to be stored.
+        :return:
+        """
         for attribute_data in data.get("attributes", []):
             attribute_name = attribute_data.get("attribute_name", "")
             attribute_value = attribute_data.get("attribute_value", "")
             self.modify_value(attribute_name, attribute_value)
 
-    """
-    Method which gets the input type for the required attribute
-    :arg attribute_name: The name of the attribute that is required
-    :arg master: The name of the panel in which the option will be added.
-    """
-
     def get_attribute_component(self, attribute_name, master):
+        """
+        Method which gets the input type for the required attribute
+        :param attribute_name: The name of the attribute that is required
+        :param master: The name of the panel in which the option will be added.
+        :return: The input type.
+        """
         if attribute_name in self.attribute_names:
             index = self.attribute_names.index(attribute_name)
             attribute_type = self.attribute_field[index]
@@ -181,42 +191,45 @@ class ComponentTemplate:
         else:
             return f"Atributul '{attribute_name}' nu există în lista de atribute."
 
-    """
-    Method which triggers when a value field has been updated.
-    It updates both the UI Interface, and the storage.
-    :arg index: The location where the value is going to be modified in the list of attribute_value
-    """
-
     def update_value(self, index):
+        """
+        Method which triggers when a value field has been updated.
+        It updates both the UI Interface, and the storage.
+        :param index: The location where the value is going to be modified in the list of attribute_value
+        :return:
+        """
         self.attribute_values[index] = self.update_attribute[index].get()
         self.show_properties()
         self.update_component()
 
-    """
-    Method which changes the value of an attribute with a new one, from the UI.
-    :arg attribute_name: The name of the attribute that is required
-    :arg value: The name of the  in which the option will be added.
-    """
-
     def modify_value(self, attribute_name, value):
+        """
+        Method which changes the value of an attribute with a new one, from the UI.
+        :param attribute_name: The name of the attribute that is required
+        :param value: The name of the  in which the option will be added.
+        :return:
+        """
         if attribute_name in self.attribute_names:
             index = self.attribute_names.index(attribute_name)
             self.attribute_values[index] = value
         else:
             print(f"{attribute_name} NO")
 
-    """
-    Method which creates and returns a UI Component
-    """
-
     def return_component(self, window=None):
+        """
+        Method which creates and returns a UI Component
+        :param window: The frame which is going to be placed, in most cases TK, or WindowFrame.
+        :return: The UI Component
+        """
         self.update_component(window)
         return self.component
 
     def update_component(self, window=None):
         """
-        Method which updates the compononent UI.
-        It must be implemented at the class itself
+        Method which updates the compononent UI element.
+        It must be implemented at the class itself that extends this base class.
+        :param window: The frame which is going to be placed, in most cases TK, or WindowFrame.
+        :return:
         """
         print('Nothing')
 
