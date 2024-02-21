@@ -13,18 +13,23 @@ class ButtonTkinter(component_template.ComponentTemplate):
 
     def update_component(self, window=None):
         if window is not None:
-            self.component = tkinter.Button(window)
-
+            if window is not self.master or self.master is None:
+                self.master = window
+                self.component = tkinter.Button(self.master)
         else:
-            self.component.destroy()
-            frame_name = self.attribute_values[self.attribute_names.index("Frame")]
-            frame = None
-            for fram in self.frames_choice:
-                if frame_name == str(fram):
-                    frame = fram
-                    break
-            self.component = tkinter.Button(frame)
-            self.component.place(anchor=tkinter.CENTER)
+            if self.frames_choice is not None:
+                frame_name = self.attribute_values[self.attribute_names.index("Frame")]
+                frame = None
+                for fr in self.frames_choice:
+                    if str(frame_name) == str(fr):
+                        frame = fr
+                        break
+                if frame is not self.master and frame is not None:
+                    self.master = frame
+                    self.component.destroy()
+                    self.component = tkinter.Button(self.master)
+                    self.component.place(anchor=tkinter.CENTER)
+
         self.component.config(
             width=self.attribute_values[self.attribute_names.index("Width")],
             height=self.attribute_values[self.attribute_names.index("Height")],
@@ -32,3 +37,4 @@ class ButtonTkinter(component_template.ComponentTemplate):
             bg=self.attribute_values[self.attribute_names.index("Background Color")],
         )
         self.component.place(anchor=tkinter.CENTER)
+        print(self.master)

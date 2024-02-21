@@ -3,8 +3,10 @@ from tkinter import ttk
 import json
 import tkinter as tk
 
+from observers.componentsubject import ComponentSubject
 
-class ComponentTemplate:
+
+class ComponentTemplate(ComponentSubject):
     def __init__(self, name, category, frames=None):
         """
         Constructor.
@@ -15,7 +17,9 @@ class ComponentTemplate:
         category = "Frame"
         :param frames: All the other frames, of which components can be switched, can be left empty if unwanted, or it can be removed.
         """
+        super().__init__()
         self.name = name
+        self.master = None
 
         self.category = category
 
@@ -31,7 +35,6 @@ class ComponentTemplate:
 
         if frames is not None:
             self.add_property(name="Frame", button_type="dropdown", default_value=self.frames_choice)
-
 
     def add_property(self, name, button_type, default_value):
         """
@@ -180,7 +183,7 @@ class ComponentTemplate:
 
                 return color_menu
             elif attribute_type == "dropdown":
-                self.update_attribute.append(tk.StringVar(value=attribute_val))
+                self.update_attribute.append(tk.StringVar(value=attribute_val[0]))
                 self.update_attribute[index].trace_add("write", lambda *args, i=index: self.update_value(i))
 
                 dropdown = tk.OptionMenu(master, self.update_attribute[index], *attribute_val)
@@ -199,8 +202,9 @@ class ComponentTemplate:
         :return:
         """
         self.attribute_values[index] = self.update_attribute[index].get()
-        self.show_properties()
+        #self.show_properties()
         self.update_component()
+        self.notify_observers(self)
 
     def modify_value(self, attribute_name, value):
         """
@@ -218,7 +222,7 @@ class ComponentTemplate:
     def return_component(self, window=None):
         """
         Method which creates and returns a UI Component
-        :param window: The frame which is going to be placed, in most cases TK, or WindowFrame.
+        :param window: The window_frame which is going to be placed, in most cases TK, or WindowFrame.
         :return: The UI Component
         """
         self.update_component(window)
@@ -228,7 +232,7 @@ class ComponentTemplate:
         """
         Method which updates the compononent UI element.
         It must be implemented at the class itself that extends this base class.
-        :param window: The frame which is going to be placed, in most cases TK, or WindowFrame.
+        :param window: The window_frame which is going to be placed, in most cases TK, or WindowFrame.
         :return:
         """
         print('Nothing')

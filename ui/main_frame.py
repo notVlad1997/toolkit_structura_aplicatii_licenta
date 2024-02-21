@@ -6,11 +6,11 @@ import inspect
 from copy import copy
 from tkinter import filedialog
 
-from ui.auto_canvas import AutoAdjustCanvas
-from ui.frame.layer_window import FrameWindowTK
+from ui.util.auto_canvas import AutoAdjustCanvas
+from ui.window_frame.layer_window import FrameWindowTK
 from component_template import ComponentTemplate
-from ui.components import WindowComponents
-from ui.component_tree import ComponentsTree
+from ui.components.components import WindowComponents
+from observers.components.component_tree import ComponentsTree
 
 
 class MainFrame(tk.Frame):
@@ -33,7 +33,6 @@ class MainFrame(tk.Frame):
         self.properties_pane = None
         self.windows_pane = None
 
-        self.create_widgets()
         self.pack(fill=tk.BOTH, expand=True)
         self.rows = 1
 
@@ -44,6 +43,7 @@ class MainFrame(tk.Frame):
         self.component_tree = None
 
         self.current_window_id = -1
+        self.ui_create = False
         self.create_menu()
 
     def create_category_panel(self, left_pane):
@@ -112,6 +112,7 @@ class MainFrame(tk.Frame):
         """
         component = element(self.frames_list[self.current_window_id].get_component_list())
         self.component_list[self.current_window_id].add_component(component)
+        component.register_observer(self.component_tree)
 
         layer_frame = tk.Frame(self.layer_pane)
         layer_frame.pack(side=tk.TOP)
@@ -130,17 +131,16 @@ class MainFrame(tk.Frame):
         if str(element) == f"<class 'FrameTkinter'>":
             self.frames_list[self.current_window_id].add_component(component_widget)
             self.component_tree.add_child(ComponentsTree(component))
+        elif str(element) == f"<class 'ui.window_frame.layer_window.FrameWindowTK'>":
+            self.component_tree = ComponentsTree(component)
         else:
-            if self.component_tree is None:
-                self.component_tree = ComponentsTree(component)
-            else:
-                self.component_tree.add_child(component)
+            self.component_tree.add_child(component)
         self.component_tree.traverse()
 
     def delete_component(self, component, ui_component, layer_button):
         """
         Method that activates when the "Delete" button is pressed.
-        It removes the layer, and the added component from frame.
+        It removes the layer, and the added component from window_frame.
         :param component: The component template.
         :param ui_component: The UI component.
         :param layer_button: Layer of the component.
@@ -194,16 +194,15 @@ class MainFrame(tk.Frame):
 
     def create_components_panel(self, left_pane):
         """
-        Method that adds a frame for the component panel to be added.
+        Method that adds a window_frame for the component panel to be added.
         :param left_pane: Frame that will contain all the buttons of Components.
         :return:
         """
         self.component_pane = self.create_scrollbar_pane(left_pane)
 
-
     def create_layers_panel(self, right_pane):
         """
-        Method that adds a frame for the layers panel to be added.
+        Method that adds a window_frame for the layers panel to be added.
         :param right_pane: Frame that will contain all the buttons of Layer.
         :return:
         """
@@ -211,7 +210,7 @@ class MainFrame(tk.Frame):
 
     def create_properties_panel(self, right_pane):
         """
-        Method that adds a frame for the properties panel to be added.
+        Method that adds a window_frame for the properties panel to be added.
         :args left_pane: Frame that will contain all the buttons of Properties.
         :return:
         """
@@ -312,6 +311,10 @@ class MainFrame(tk.Frame):
         Method that creates a new tab of window.
         :return:
         """
+        if self.ui_create is False:
+            self.create_widgets()
+            self.ui_create = True
+
         for widget in self.layer_pane.winfo_children():
             if not isinstance(widget, tk.Scrollbar):
                 widget.destroy()
@@ -336,13 +339,14 @@ class MainFrame(tk.Frame):
         self.frames_list.append(WindowComponents())
 
         self.add_new_component("TK", FrameWindowTK)
-        component_widget = self.component_list[self.current_window_id].get_component(0).return_component().content_frame
+        component_widget = self.component_list[self.current_window_id].get_component(0).return_component()
 
         self.frames_list[self.current_window_id].add_component(component_widget)
         self.window = component_widget
-
         self.saved_layer_pane_elements = copy(self.layer_pane)
         self.saved_window_elements = [widget for widget in self.window.winfo_children()]
+
+        # self.component_tree = ComponentsTree(component_widget)
 
         new_ui = tk.Button(self.windows_pane, text="Hello", command=lambda index=len(self.windows_buttons):
         self.window_button_pressed(index=index))
@@ -409,7 +413,7 @@ class MainFrame(tk.Frame):
                                         attribute_value = attribute_data.get("attribute_value", "")
                                         component_instance.modify_value(attribute_name=attribute_name,
                                                                         value=attribute_value)
-                                        component_instance.show_properties()
+                                        #component_instance.show_properties()
 
                                     self.component_list[self.current_window_id].add_component(component_instance)
 
@@ -452,10 +456,11 @@ class MainFrame(tk.Frame):
         delete_button.pack(side=tk.RIGHT)
         component_widget.pack()
 
-    def create_scrollbar_pane(self, display_pane):
+    @staticmethod
+    def create_scrollbar_pane(display_pane):
         """
-        Method that creates a new scrollbar pane and adds it to the display frame
-        :param display_pane: The frame where the scrollbar pane will be placed
+        Method that creates a new scrollbar pane and adds it to the display window_frame
+        :param display_pane: The window_frame where the scrollbar pane will be placed
         :return: The Scrollbar pane
         """
         frame = tk.Frame(display_pane)
@@ -469,5 +474,7 @@ class MainFrame(tk.Frame):
         canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         display_pane.add(frame, minsize=200)
         return canvas.container
+
+    @staticmethod
     def dummy_function(self):
         print("Function to be implemented.")
