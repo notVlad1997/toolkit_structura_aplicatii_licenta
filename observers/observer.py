@@ -1,3 +1,3 @@
-class MasterObserver:
-    def update(self, child):
+class Observer:
+    def update(self, value):
         pass

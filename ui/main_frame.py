@@ -1,16 +1,16 @@
 import importlib
+import inspect
 import json
 import os
 import tkinter as tk
-import inspect
-from copy import copy
 from tkinter import filedialog
 
-from ui.util.auto_canvas import AutoAdjustCanvas
-from ui.window_frame.layer_window import FrameWindowTK
 from component_template import ComponentTemplate
-from ui.components.components import WindowComponents
 from observers.components.component_tree import ComponentsTree
+from ui.components.components import WindowComponents
+from ui.layer_frame import LayerFrame
+from ui.util.auto_canvas import AutoAdjustCanvas
+from ui.window_frame.window_frame import FrameWindowTK
 
 
 class MainFrame(tk.Frame):
@@ -33,6 +33,8 @@ class MainFrame(tk.Frame):
         self.properties_pane = None
         self.windows_pane = None
 
+        self.layer_frame = None
+
         self.pack(fill=tk.BOTH, expand=True)
         self.rows = 1
 
@@ -40,7 +42,7 @@ class MainFrame(tk.Frame):
         self.frames_list = []
         self.windows_buttons = []
 
-        self.component_tree = None
+        self.component_tree = ComponentsTree()
 
         self.current_window_id = -1
         self.ui_create = False
@@ -114,67 +116,16 @@ class MainFrame(tk.Frame):
         self.component_list[self.current_window_id].add_component(component)
         component.register_observer(self.component_tree)
 
-        layer_frame = tk.Frame(self.layer_pane)
-        layer_frame.pack(side=tk.TOP)
+        self.layer_frame.create_new_layer(component=component, attribute_name=attribute_name)
 
-        button = tk.Button(layer_frame, text=f"Layer {attribute_name}",
-                           command=lambda comp=component: self.properties_component(comp))
-        button.pack(side=tk.LEFT)
-
-        component_widget = component.return_component(self.window)
-
-        delete_button = tk.Button(layer_frame, text="Delete",
-                                  command=lambda comp=component,
-                                                 frame=layer_frame: self.delete_component(component, component_widget,
-                                                                                          layer_frame))
-        delete_button.pack(side=tk.RIGHT)
         if str(element) == f"<class 'FrameTkinter'>":
+            component_widget = component.return_component(self.window)
             self.frames_list[self.current_window_id].add_component(component_widget)
-            self.component_tree.add_child(ComponentsTree(component))
+            self.component_tree.add_component(ComponentsTree(component))
         elif str(element) == f"<class 'ui.window_frame.layer_window.FrameWindowTK'>":
             self.component_tree = ComponentsTree(component)
         else:
-            self.component_tree.add_child(component)
-        self.component_tree.traverse()
-
-    def delete_component(self, component, ui_component, layer_button):
-        """
-        Method that activates when the "Delete" button is pressed.
-        It removes the layer, and the added component from window_frame.
-        :param component: The component template.
-        :param ui_component: The UI component.
-        :param layer_button: Layer of the component.
-        :return:
-        """
-        if str(component.__class__) == f"<class 'FrameTkinter'>":
-            self.frames_list[self.current_window_id].remove_component(component.return_component())
-        self.component_list[self.current_window_id].remove_component(component)
-        layer_button.destroy()
-        ui_component.destroy()
-
-    def properties_component(self, component_pressed):
-        """
-        Method that it activates when the layer is pressed.
-        It triggers the options that can be edited.
-        :param component_pressed: The name of the component that it needs to pull the categories.
-        :return:
-        """
-        component = None
-        for comp in self.component_list[self.current_window_id].components:
-            if component_pressed == comp:
-                component = comp
-                break
-        if component:
-            self.display_component_properties(component)
-        else:
-            for frames in self.frames_list[self.current_window_id].components:
-                if component_pressed == frames:
-                    component = frames
-                    break
-            if component:
-                self.display_component_properties(component)
-            else:
-                print('No component for properties')
+            self.component_tree.add_component(component)
 
     def display_component_properties(self, component):
         """
@@ -206,7 +157,12 @@ class MainFrame(tk.Frame):
         :param right_pane: Frame that will contain all the buttons of Layer.
         :return:
         """
-        self.layer_pane = self.create_scrollbar_pane(right_pane)
+        # self.layer_pane = self.create_scrollbar_pane(right_pane)
+        # self.properties_pane = self.create_scrollbar_pane(right_pane)
+        # self.properties_pane = self.create_scrollbar_pane(right_pane)
+        self.layer_frame = LayerFrame(master=right_pane, component_tree=self.component_tree, window=self.window)
+
+        self.layer_pane = self.layer_frame.layer_pane
 
     def create_properties_panel(self, right_pane):
         """
@@ -214,7 +170,7 @@ class MainFrame(tk.Frame):
         :args left_pane: Frame that will contain all the buttons of Properties.
         :return:
         """
-        self.properties_pane = self.create_scrollbar_pane(right_pane)
+        # self.properties_pane = self.create_scrollbar_pane(right_pane)
 
     def create_widgets(self):
         """
@@ -228,8 +184,9 @@ class MainFrame(tk.Frame):
         self.create_category_panel(left_pane)
 
         self.middle_pane = tk.Frame(self.main_pane)
+        #
+        # self.middle_pane = self.create_scrollbar_pane(self.main_pane)
         self.middle_pane.pack_propagate(False)
-
         self.window = self.middle_pane
 
         self.windows_pane = tk.Frame(self.middle_pane, height=30, highlightbackground="gray60", highlightthickness=1)
@@ -266,45 +223,45 @@ class MainFrame(tk.Frame):
 
         menubar.add_cascade(label="Settings", command=self.dummy_function)
 
-    def window_button_pressed(self, index):
-        """
-        Method that switches between tabs of windows when pressed.
-        :param index: ID of the tab
-        :return:
-        """
-        self.component_list[self.current_window_id].get_component(0).return_component().destroy()
-        for widget in self.layer_pane.winfo_children():
-            widget.destroy()
-
-        for widget in self.window.winfo_children():
-            if hasattr(widget, 'id'):
-                if not widget.id == f"Title Bar":
-                    widget.destroy()
-            else:
-                widget.destroy()
-
-        components = self.component_list[index].components
-
-        for component in components:
-            layer_frame = tk.Frame(self.layer_pane)
-            layer_frame.pack(side=tk.TOP)
-
-            button_name = f"Layer {component.name}"
-            button = tk.Button(layer_frame, text=button_name,
-                               command=lambda comp=component: self.properties_component(comp))
-            button.pack(side=tk.LEFT)
-
-            delete_button = tk.Button(layer_frame, text="Delete",
-                                      command=lambda comp=component, frame=layer_frame: self.delete_component(comp,
-                                                                                                              comp.return_component(
-                                                                                                                  self.window),
-                                                                                                              frame))
-            delete_button.pack(side=tk.RIGHT)
-
-            component_widget = component.return_component()
-            component_widget.pack()
-
-        self.current_window_id = index
+    # def window_button_pressed(self, index):
+    #     """
+    #     Method that switches between tabs of windows when pressed.
+    #     :param index: ID of the tab
+    #     :return:
+    #     """
+    #     self.component_list[self.current_window_id].get_component(0).return_component().destroy()
+    #     for widget in self.layer_pane.winfo_children():
+    #         widget.destroy()
+    #
+    #     for widget in self.window.winfo_children():
+    #         if hasattr(widget, 'id'):
+    #             if not widget.id == f"Title Bar":
+    #                 widget.destroy()
+    #         else:
+    #             widget.destroy()
+    #
+    #     components = self.component_list[index].components
+    #
+    #     for component in components:
+    #         layer_frame = tk.Frame(self.layer_pane)
+    #         layer_frame.pack(side=tk.TOP)
+    #
+    #         button_name = f"Layer {component.name}"
+    #         button = tk.Button(layer_frame, text=button_name,
+    #                            command=lambda comp=component: self.properties_component(comp))
+    #         button.pack(side=tk.LEFT)
+    #
+    #         delete_button = tk.Button(layer_frame, text="Delete",
+    #                                   command=lambda comp=component, frame=layer_frame: self.delete_component(comp,
+    #                                                                                                           comp.return_component(
+    #                                                                                                               self.window),
+    #                                                                                                           frame))
+    #         delete_button.pack(side=tk.RIGHT)
+    #
+    #         component_widget = component.return_component()
+    #         component_widget.pack()
+    #
+    #     self.current_window_id = index
 
     def action_new(self):
         """
@@ -315,9 +272,7 @@ class MainFrame(tk.Frame):
             self.create_widgets()
             self.ui_create = True
 
-        for widget in self.layer_pane.winfo_children():
-            if not isinstance(widget, tk.Scrollbar):
-                widget.destroy()
+        self.layer_frame.destroy()
 
         is_mainpane = False
         for widget in self.window.winfo_children():
@@ -343,15 +298,15 @@ class MainFrame(tk.Frame):
 
         self.frames_list[self.current_window_id].add_component(component_widget)
         self.window = component_widget
-        self.saved_layer_pane_elements = copy(self.layer_pane)
+        #self.saved_layer_pane_elements = copy(self.layer_pane)
         self.saved_window_elements = [widget for widget in self.window.winfo_children()]
 
         # self.component_tree = ComponentsTree(component_widget)
 
-        new_ui = tk.Button(self.windows_pane, text="Hello", command=lambda index=len(self.windows_buttons):
-        self.window_button_pressed(index=index))
-        self.windows_buttons.append(new_ui)
-        new_ui.pack(side=tk.LEFT, fill=tk.Y)
+        # new_ui = tk.Button(self.windows_pane, text="Hello", command=lambda index=len(self.windows_buttons):
+        # self.window_button_pressed(index=index))
+        # self.windows_buttons.append(new_ui)
+        # new_ui.pack(side=tk.LEFT, fill=tk.Y)
 
     def action_save(self):
         """
@@ -442,19 +397,20 @@ class MainFrame(tk.Frame):
         :param component_widget: Component of the class that can be modified.
         :return:
         """
-        layer_frame = tk.Frame(self.layer_pane)
-        layer_frame.pack(side=tk.TOP)
-
-        button = tk.Button(layer_frame, text=button_name,
-                           command=lambda comp=component_instance: self.properties_component(comp))
-        button.pack(side=tk.LEFT)
-
-        delete_button = tk.Button(layer_frame, text="Delete", command=lambda comp=component_instance,
-                                                                             frame=layer_frame: self.delete_component(
-            component_instance, component_widget, layer_frame))
-
-        delete_button.pack(side=tk.RIGHT)
-        component_widget.pack()
+        self.layer_frame.create_new_layer(component_instance, component_widget)
+        # layer_frame = tk.Frame(self.layer_pane)
+        # layer_frame.pack(side=tk.TOP)
+        #
+        # button = tk.Button(layer_frame, text=button_name,
+        #                    command=lambda comp=component_instance: self.properties_component(comp))
+        # button.pack(side=tk.LEFT)
+        #
+        # delete_button = tk.Button(layer_frame, text="Delete", command=lambda comp=component_instance,
+        #                                                                      frame=layer_frame: self.delete_component(
+        #     component_instance, component_widget, layer_frame))
+        #
+        # delete_button.pack(side=tk.RIGHT)
+        # component_widget.pack()
 
     @staticmethod
     def create_scrollbar_pane(display_pane):

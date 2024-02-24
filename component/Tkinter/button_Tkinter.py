@@ -16,6 +16,7 @@ class ButtonTkinter(component_template.ComponentTemplate):
             if window is not self.master or self.master is None:
                 self.master = window
                 self.component = tkinter.Button(self.master)
+                self.component.place(anchor=tkinter.CENTER)
         else:
             if self.frames_choice is not None:
                 frame_name = self.attribute_values[self.attribute_names.index("Frame")]

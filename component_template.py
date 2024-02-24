@@ -3,10 +3,10 @@ from tkinter import ttk
 import json
 import tkinter as tk
 
-from observers.componentsubject import ComponentSubject
+from observers.subject import Subject
 
 
-class ComponentTemplate(ComponentSubject):
+class ComponentTemplate(Subject):
     def __init__(self, name, category, frames=None):
         """
         Constructor.
@@ -183,7 +183,7 @@ class ComponentTemplate(ComponentSubject):
 
                 return color_menu
             elif attribute_type == "dropdown":
-                self.update_attribute.append(tk.StringVar(value=attribute_val[0]))
+                self.update_attribute.append(tk.StringVar(value=attribute_val))
                 self.update_attribute[index].trace_add("write", lambda *args, i=index: self.update_value(i))
 
                 dropdown = tk.OptionMenu(master, self.update_attribute[index], *attribute_val)

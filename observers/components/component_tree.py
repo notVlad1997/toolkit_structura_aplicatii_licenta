@@ -1,15 +1,19 @@
-from observers.observer import MasterObserver
+from observers.observer import Observer
+from observers.subject import Subject
 
 
-class ComponentsTree(MasterObserver):
-    def __init__(self, value):
+class ComponentsTree(Observer, Subject):
+    def __init__(self, value=None):
+        super().__init__()
         self.value = value
         self.children = []
 
-    def add_child(self, child_node):
+    def add_component(self, child_node):
         self.children.append(child_node)
+        self.notify_observers(self)
+        self.traverse()
 
-    def remove_child(self, child_node):
+    def remove_component(self, child_node):
         self.children = [child for child in self.children
                          if child is not child_node]
 
@@ -44,16 +48,25 @@ class ComponentsTree(MasterObserver):
                     if parent_found is not None:
                         return parent
 
-    def update(self, child):
-        parent = self.find_parent_of_child(child=child, parent=self)
+    def update(self, value):
+        parent = self.find_parent_of_child(child=value, parent=self)
         if parent is not None:
-            if parent.value.return_component() is not child.master:
-                parent_frame = self.find_parent_of_frame(parent=self, frame=child.master)
+            if parent.value.return_component() is not value.master:
+                parent_frame = self.find_parent_of_frame(parent=self, frame=value.master)
                 if parent_frame is not None:
-                    parent.remove_child(child)
-                    parent_frame.add_child(child)
-                    #self.traverse()
+                    parent.remove_child(value)
+                    parent_frame.add_component(value)
+                    self.notify_observers(self)
                 else:
                     print("CUM?")
+
+    def create_component_list(self, list=[]):
+        for children in self.children:
+            if isinstance(children, ComponentsTree):
+                list.append(children.value)
+                list = list + children.create_component_list(list)
+            else:
+                list.append(children)
+        return list
 
 
