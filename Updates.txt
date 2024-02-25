@@ -1,5 +1,4 @@
 --SALVAREA
-Sa se salveze sub forma unui folder bine structurat
 Sa te intrebe unde vrei sa il salvezi
 Sa se salveze sub forma unui proiect Python care ulterior sa fie modificat
 
@@ -18,6 +17,12 @@ Sa poti sa dai nume la layere(care ulterior cand se salveaza un fisier sa devina
 
 --LIBRARY
 Adaugare suport de a salva functionalitate ca sa fie refolosita
+
+--ADAUGARE COMPONENTE CARE SA NU APARA IN CATEGORY
+
+--REFACTORING
+Componentele sa fie in diferite clase
+Modalitatile de salvare sa fie in diferite clase
 
 EXTRA
 --GPT

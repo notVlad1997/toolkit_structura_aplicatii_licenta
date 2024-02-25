@@ -80,7 +80,7 @@ class ComponentTemplate(Subject):
         for name, value in zip(self.attribute_names, self.attribute_values):
             attribute_data = {
                 "attribute_name": name,
-                "attribute_value": value
+                "attribute_value": str(value)
             }
             data["attributes"].append(attribute_data)
 
@@ -185,6 +185,7 @@ class ComponentTemplate(Subject):
                 return color_menu
             elif attribute_type == "dropdown":
                 self.update_attribute.append(tk.StringVar(value=attribute_val[0]))
+                self.update_attribute[index].set(attribute_val[0])
                 self.update_attribute[index].trace_add("write", lambda *args, i=index: self.update_value(i))
 
                 dropdown = tk.OptionMenu(master, self.update_attribute[index], *attribute_val)

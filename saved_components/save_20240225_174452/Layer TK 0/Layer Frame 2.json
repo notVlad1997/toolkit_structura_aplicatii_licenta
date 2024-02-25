@@ -1,0 +1,22 @@
+{
+  "name": "Frame",
+  "category": "Frame",
+  "attributes": [
+    {
+      "attribute_name": "Frame",
+      "attribute_value": "[<tkinter.Frame object .!mainframe.!panedwindow.!frame.!framewindow.!frame3>, <tkinter.Frame object .!mainframe.!panedwindow.!frame.!framewindow.!frame3.!frame>, <tkinter.Frame object .!mainframe.!panedwindow.!frame.!framewindow.!frame3.!frame2>]"
+    },
+    {
+      "attribute_name": "Width",
+      "attribute_value": "300"
+    },
+    {
+      "attribute_name": "Height",
+      "attribute_value": "200"
+    },
+    {
+      "attribute_name": "Background Color",
+      "attribute_value": "white"
+    }
+  ]
+}

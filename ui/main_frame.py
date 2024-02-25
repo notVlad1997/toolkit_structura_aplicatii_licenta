@@ -1,7 +1,9 @@
+import os
 import tkinter as tk
+from datetime import datetime
+from tkinter import filedialog
 
 from ui.components.component_tree import ComponentsTree
-from ui.components.components import WindowComponents
 from ui.frames.category_frame import CategoryFrame
 from ui.frames.component_frame import ComponentFrame
 from ui.frames.layer_frame import LayerFrame
@@ -124,7 +126,15 @@ class MainFrame(tk.Frame):
         Method that saves all the components into their JSON file.
         :return:
         """
-        self.component_list[self.current_window_id].save_json()
+        # file_path = filedialog.asksaveasfilename(defaultextension=".json", filetypes=[("JSON files", "*.json")])
+        #
+        # if file_path:
+        #     self.component_tree.save_to_json_recursive(folder_path=file_path)
+        default_save_folder = "saved_components"
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        save_folder = os.path.join(default_save_folder, f"save_{timestamp}")
+
+        self.component_tree.save_to_json_recursive(base_folder=save_folder)
 
     def action_open(self):
         print("NOT FIXED")
