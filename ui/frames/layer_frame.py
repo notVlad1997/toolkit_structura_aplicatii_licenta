@@ -41,10 +41,10 @@ class LayerFrame(Observer):
                                                  frame=layer_frame: self.delete_layer(component, component_widget,
                                                                                       layer_frame))
         delete_button.grid(row=0, column=1, sticky="ew")
-        print(str(type(component)))
-        if str(type(component)) == f"<class 'FrameTkinter'>":
-            self.frames_list.append(component_widget)
-        elif str(type(component)) == f"<class 'component.Frame.windowFrame_Custom.FrameWindowTK'>":
+        if (str(type(component)) == f"<class 'FrameTkinter'>" or
+                str(type(component)) == "<class 'component.Frame.frame_Tkinter.FrameTkinter'>" or
+                str(type(component)) == f"<class 'component.Frame.windowFrame_Custom.FrameWindowTK'>" or
+                str(type(component)) == "<class 'component.Frame.windowFrame_Custom.FrameWindowTK'>"):
             self.frames_list.append(component_widget)
 
     def delete_layer(self, component, ui_component, layer_button):

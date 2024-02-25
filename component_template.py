@@ -35,8 +35,8 @@ class ComponentTemplate(Subject):
         self.color_options = ["white", "black", "red", "green", "blue", "yellow", "purple", "orange"]
 
         if frames is not None:
-            self.add_property(name="Frame", button_type="dropdown", default_value=self.frames_choice)
-            self.attribute_values[self.attribute_names.index("Frame")] = self.frames_choice[0]
+            self.add_property(name="Frame", button_type="frames", default_value=self.frames_choice)
+            self.attribute_values[self.attribute_names.index("Frame")] = str(self.frames_choice[0])
 
         self.visible = visible
 
@@ -186,12 +186,13 @@ class ComponentTemplate(Subject):
                 color_menu = tk.OptionMenu(master, self.update_attribute[index], *self.color_options)
 
                 return color_menu
-            elif attribute_type == "dropdown":
-                self.update_attribute.append(tk.StringVar(value=attribute_val[0]))
-                self.update_attribute[index].set(attribute_val[0])
+            elif attribute_type == "frames":
+                print(attribute_val)
+                self.update_attribute.append(tk.StringVar(value=str(attribute_val)))
+                # self.update_attribute[index].set(attribute_val[0])
                 self.update_attribute[index].trace_add("write", lambda *args, i=index: self.update_value(i))
 
-                dropdown = tk.OptionMenu(master, self.update_attribute[index], *attribute_val)
+                dropdown = tk.OptionMenu(master, self.update_attribute[index], *self.frames_choice)
 
                 return dropdown
             else:

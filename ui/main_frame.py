@@ -8,6 +8,7 @@ from ui.frames.category_frame import CategoryFrame
 from ui.frames.component_frame import ComponentFrame
 from ui.frames.layer_frame import LayerFrame
 from component.Frame.windowFrame_Custom import FrameWindowTK
+from ui.util import file_util
 
 
 class MainFrame(tk.Frame):
@@ -126,17 +127,37 @@ class MainFrame(tk.Frame):
         Method that saves all the components into their JSON file.
         :return:
         """
-        # file_path = filedialog.asksaveasfilename(defaultextension=".json", filetypes=[("JSON files", "*.json")])
-        #
-        # if file_path:
-        #     self.component_tree.save_to_json_recursive(folder_path=file_path)
         folder_path = filedialog.askdirectory(title="Select where to save...")
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        save_folder = os.path.join(folder_path, f"save_{timestamp}")
-        self.component_tree.save_to_json_recursive(base_folder=save_folder)
+        if folder_path:
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            save_folder = os.path.join(folder_path, f"save_{timestamp}")
+            self.component_tree.save_to_json_recursive(base_folder=save_folder)
 
     def action_open(self):
-        print("NOT FIXED")
+        if self.ui_create is False:
+            self.create_widgets()
+            self.ui_create = True
+        folder_path = filedialog.askdirectory(title="Select a folder")
+
+        if folder_path:
+            # Dacă utilizatorul a selectat un director, încărcați datele
+            self.load_from_folder_recursive(folder_path, window=self.window)
+            print(f"Datele au fost încărcate din {folder_path}")
+
+    def load_from_folder_recursive(self, folder_path, window):
+        last_frame = self.frames_list[-1]
+        for filename in os.listdir(folder_path):
+            file_path = os.path.join(folder_path, filename)
+
+            if os.path.isfile(file_path) and filename.endswith(".json"):
+                file_util.transform_into_component(component_tree=self.component_tree, component_frame=self.component,
+                                                   file_path=file_path, frames_list=self.frames_list, window=window)
+                if self.frames_list[-1] is not last_frame:
+                    last_frame = self.frames_list[-1]
+                    for filename in os.listdir(folder_path):
+                        folder_path_child = os.path.join(folder_path, filename)
+                        if os.path.isdir(folder_path_child):
+                            self.load_from_folder_recursive(folder_path_child, window=self.frames_list[-1])
 
     @staticmethod
     def dummy_function():
