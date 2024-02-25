@@ -130,10 +130,9 @@ class MainFrame(tk.Frame):
         #
         # if file_path:
         #     self.component_tree.save_to_json_recursive(folder_path=file_path)
-        default_save_folder = "saved_components"
+        folder_path = filedialog.askdirectory(title="Select where to save...")
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        save_folder = os.path.join(default_save_folder, f"save_{timestamp}")
-
+        save_folder = os.path.join(folder_path, f"save_{timestamp}")
         self.component_tree.save_to_json_recursive(base_folder=save_folder)
 
     def action_open(self):
