@@ -12,6 +12,7 @@ class ButtonTkinter(component_template.ComponentTemplate):
                           default_value="gray")
 
     def update_component(self, window=None):
+
         if window is not None:
             if window is not self.master or self.master is None:
                 self.master = window

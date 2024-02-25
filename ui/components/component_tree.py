@@ -83,19 +83,16 @@ class ComponentsTree(Observer, Subject):
     # Modifică metoda save_to_json_recursive din ComponentsTree
     def save_to_json_recursive(self, base_folder="."):
         """
-        Metodă recursivă pentru a salva componente într-o structură de directoare și fișiere JSON.
+        Method that saves the UI elemens in .json files structured.
 
         :param base_folder: Folderul de bază în care să se creeze structura.
         """
-        # Creează directorul pentru componenta curentă
         current_folder = os.path.join(base_folder, str(self.value.layer_name))
         os.makedirs(current_folder, exist_ok=True)
 
-        # Salvează componenta într-un fișier JSON în directorul curent
         json_filename = os.path.join(base_folder, f"{self.value.layer_name}.json")
         self.value.save_to_json(json_filename)
 
-        # Verifică dacă componenta este o altă instanță a clasei ComponentsTree și apelează recursiv
         for child in self.children:
             if isinstance(child, ComponentsTree):
                 child.save_to_json_recursive(current_folder)

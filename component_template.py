@@ -36,6 +36,7 @@ class ComponentTemplate(Subject):
 
         if frames is not None:
             self.add_property(name="Frame", button_type="dropdown", default_value=self.frames_choice)
+            self.attribute_values[self.attribute_names.index("Frame")] = self.frames_choice[0]
 
     def add_property(self, name, button_type, default_value):
         """

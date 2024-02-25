@@ -1,5 +1,4 @@
 --SALVAREA
-Sa te intrebe unde vrei sa il salvezi
 Sa se salveze sub forma unui proiect Python care ulterior sa fie modificat
 
 --ADAUGARE FUNCTIONALITATE
