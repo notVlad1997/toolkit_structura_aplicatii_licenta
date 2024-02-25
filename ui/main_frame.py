@@ -7,7 +7,7 @@ from ui.components.component_tree import ComponentsTree
 from ui.frames.category_frame import CategoryFrame
 from ui.frames.component_frame import ComponentFrame
 from ui.frames.layer_frame import LayerFrame
-from ui.window_frame.window_frame import FrameWindowTK
+from component.Frame.windowFrame_Custom import FrameWindowTK
 
 
 class MainFrame(tk.Frame):

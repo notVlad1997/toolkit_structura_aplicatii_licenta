@@ -78,4 +78,5 @@ class CategoryFrame:
         for name, obj in namespace.items():
             if inspect.isclass(obj) and issubclass(obj, ComponentTemplate) and obj != ComponentTemplate:
                 component_instance = obj(frame_list)
-                component_frame.component_button(component_instance.name, obj, window=window)
+                if component_instance.visible is True:
+                    component_frame.component_button(component_instance.name, obj, window=window)

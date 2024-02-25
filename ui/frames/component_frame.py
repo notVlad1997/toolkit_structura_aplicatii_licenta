@@ -28,7 +28,7 @@ class ComponentFrame:
         self.layer_frame.create_new_layer(component=component, attribute_name=attribute_name, window=window)
         if str(element) == f"<class 'FrameTkinter'>":
             self.component_tree.add_component(ComponentsTree(value=component))
-        elif str(element) == f"<class 'ui.window_frame.window_frame.FrameWindowTK'>":
+        elif str(element) == f"<class 'component.Frame.windowFrame_Custom.FrameWindowTK'>":
             self.component_tree.value = component
         else:
             self.component_tree.add_component(component)

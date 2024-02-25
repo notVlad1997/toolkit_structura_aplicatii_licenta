@@ -4,7 +4,7 @@ import component_template
 
 class FrameWindowTK(component_template.ComponentTemplate):
     def __init__(self, frames):
-        super().__init__(name="WindowFrame", category="Frame", frames=None)
+        super().__init__(name="WindowFrame", category="Frame", frames=None, visible=False)
         # self.remove_property(attribute_name="Frame")
         self.add_property(name="Width", button_type="slider", default_value=600)
         self.add_property(name="Height", button_type="slider", default_value=400)
@@ -15,7 +15,6 @@ class FrameWindowTK(component_template.ComponentTemplate):
             if window is not self.master or self.master is None:
                 self.master = window
                 self.component = FrameWindow(window)
-        print(window)
         self.component.config(
             width=self.attribute_values[self.attribute_names.index("Width")],
             height=self.attribute_values[self.attribute_names.index("Height")],

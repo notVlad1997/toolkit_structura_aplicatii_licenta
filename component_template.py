@@ -7,7 +7,7 @@ from observers.subject import Subject
 
 
 class ComponentTemplate(Subject):
-    def __init__(self, name, category, frames=None, layer_name=None):
+    def __init__(self, name, category, frames=None, layer_name=None, visible=True):
         """
         Constructor.
         :param name: Name of the class
@@ -37,6 +37,8 @@ class ComponentTemplate(Subject):
         if frames is not None:
             self.add_property(name="Frame", button_type="dropdown", default_value=self.frames_choice)
             self.attribute_values[self.attribute_names.index("Frame")] = self.frames_choice[0]
+
+        self.visible = visible
 
     def add_property(self, name, button_type, default_value):
         """
