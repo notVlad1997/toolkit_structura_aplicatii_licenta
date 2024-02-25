@@ -15,6 +15,7 @@ class FrameWindowTK(component_template.ComponentTemplate):
             if window is not self.master or self.master is None:
                 self.master = window
                 self.component = FrameWindow(window)
+        print(window)
         self.component.config(
             width=self.attribute_values[self.attribute_names.index("Width")],
             height=self.attribute_values[self.attribute_names.index("Height")],

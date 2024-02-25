@@ -11,7 +11,6 @@ class ComponentsTree(Observer, Subject):
     def add_component(self, child_node):
         self.children.append(child_node)
         self.notify_observers(self)
-        self.traverse()
 
     def remove_component(self, child_node):
         self.children = [child for child in self.children
@@ -21,7 +20,7 @@ class ComponentsTree(Observer, Subject):
         print("START:", self.value)
         for node in self.children:
             if isinstance(node, ComponentsTree):
-                print("Traversing frame:", node.value)
+                print("Traversing frames:", node.value)
                 node.traverse()
                 print("END", self.value)
             else:
@@ -54,16 +53,18 @@ class ComponentsTree(Observer, Subject):
             if parent.value.return_component() is not value.master:
                 parent_frame = self.find_parent_of_frame(parent=self, frame=value.master)
                 if parent_frame is not None:
-                    parent.remove_child(value)
+                    parent.remove_component(value)
                     parent_frame.add_component(value)
                     self.notify_observers(self)
                 else:
                     print("CUM?")
 
-    def create_component_list(self, list=[]):
+    def create_component_list(self, list=None):
+        if list is None:
+            list = []
+        list.append(self.value)
         for children in self.children:
             if isinstance(children, ComponentsTree):
-                list.append(children.value)
                 list = list + children.create_component_list(list)
             else:
                 list.append(children)

@@ -1,0 +1,114 @@
+    # def window_button_pressed(self, index):
+    #     """
+    #     Method that switches between tabs of windows when pressed.
+    #     :param index: ID of the tab
+    #     :return:
+    #     """
+    #     self.component_list[self.current_window_id].get_component(0).return_component().destroy()
+    #     for widget in self.layer_pane.winfo_children():
+    #         widget.destroy()
+    #
+    #     for widget in self.window.winfo_children():
+    #         if hasattr(widget, 'id'):
+    #             if not widget.id == f"Title Bar":
+    #                 widget.destroy()
+    #         else:
+    #             widget.destroy()
+    #
+    #     components = self.component_list[index].components
+    #
+    #     for component in components:
+    #         layer_frame = tk.Frame(self.layer_pane)
+    #         layer_frame.pack(side=tk.TOP)
+    #
+    #         button_name = f"Layer {component.name}"
+    #         button = tk.Button(layer_frame, text=button_name,
+    #                            command=lambda comp=component: self.properties_component(comp))
+    #         button.pack(side=tk.LEFT)
+    #
+    #         delete_button = tk.Button(layer_frame, text="Delete",
+    #                                   command=lambda comp=component, frame=layer_frame: self.delete_component(comp,
+    #                                                                                                           comp.return_component(
+    #                                                                                                               self.window),
+    #                                                                                                           frame))
+    #         delete_button.pack(side=tk.RIGHT)
+    #
+    #         component_widget = component.return_component()
+    #         component_widget.pack()
+    #
+    #     self.current_window_id = index
+
+
+        def action_open(self):
+        """
+        Method that opens a JSON file and adds it to the curent window.s
+        :return:
+        """
+        file_path = filedialog.askopenfilename(defaultextension=".json", filetypes=[("JSON files", "*.json")])
+        if file_path:
+            try:
+                with (open(file_path, 'r') as json_file):
+                    data = json.load(json_file)
+
+                    if "name" not in data or "category" not in data or "attributes" not in data:
+                        print("No class with such information.")
+                        return
+
+                    component_name = data["name"]
+                    category_name = data["category"]
+                    attributes_data = data["attributes"]
+
+                    folder_path = f"./component/{category_name}"
+
+                    if os.path.exists(folder_path) and os.path.isdir(folder_path):
+                        python_files = [f for f in os.listdir(folder_path) if
+                                        f.endswith(".py") and not f.startswith("__")]
+
+                        for python_file in python_files:
+                            module_name = os.path.splitext(python_file)[0]
+                            template_file_path = os.path.join(folder_path, python_file)
+
+                            try:
+                                with open(template_file_path, 'r') as file:
+                                    module_content = file.read()
+
+                                class_name = None
+                                namespace = {}
+                                exec(module_content, namespace)
+                                for name, obj in namespace.items():
+                                    if inspect.isclass(obj) and issubclass(
+                                            obj, ComponentTemplate) and obj != ComponentTemplate:
+                                        class_name = name
+                                        break
+
+                                if class_name:
+                                    module = importlib.import_module(f"component.{category_name}.{module_name}")
+                                    class_instance = getattr(module, class_name)
+
+                                    component_instance = class_instance()
+
+                                    for attribute_data in attributes_data:
+                                        attribute_name = attribute_data.get("attribute_name", "")
+                                        attribute_value = attribute_data.get("attribute_value", "")
+                                        component_instance.modify_value(attribute_name=attribute_name,
+                                                                        value=attribute_value)
+                                        # component_instance.show_properties()
+
+                                    self.component_list[self.current_window_id].add_component(component_instance)
+
+                                    component_widget = component_instance.return_component(self.window)
+                                    component_widget.pack()
+
+                                    button_name = f"Layer {category_name} - {component_name}"
+                                    self.layer_button(button_name, component_instance, component_widget)
+
+                                    break
+
+                            except Exception as e:
+                                print(f"Error on module loading: {module_name}, {e}")
+
+                    else:
+                        print(f"Not existent JSON File")
+
+            except Exception as e:
+                print(f"JSON File Error: {e}")

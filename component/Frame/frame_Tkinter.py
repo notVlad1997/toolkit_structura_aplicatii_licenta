@@ -17,13 +17,13 @@ class FrameTkinter(component_template.ComponentTemplate):
         # else:
         #     if self.frames_choice is not None:
         #         frame_name = self.attribute_values[self.attribute_names.index("Frame")]
-        #         frame = None
+        #         frames = None
         #         for fr in self.frames_choice:
         #             if str(frame_name) == str(fr):
-        #                 frame = fr
+        #                 frames = fr
         #                 break
-        #         if frame is not self.master and frame is not None:
-        #             self.master = frame
+        #         if frames is not self.master and frames is not None:
+        #             self.master = frames
         #             self.component.destroy()
         #             self.component = tkinter.Button(self.master)
         #             self.component.place(anchor=tkinter.CENTER)
