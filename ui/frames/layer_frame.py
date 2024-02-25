@@ -11,20 +11,28 @@ class LayerFrame(Observer):
 
         self.window = window
         self.component_tree = component_tree
-        self.component_list = self.component_tree.create_component_list()
+
         self.component_tree.register_observer(self)
         self.frames_list = frames_list
 
         self.properties_frame = PropertiesFrame(master=self.master, component_tree=self.component_tree)
         self.properties_pane = self.properties_frame.properties_pane
 
+        self.index = 0
+
     def create_new_layer(self, component, attribute_name, window=None):
         layer_frame = tk.Frame(self.layer_pane)
         layer_frame.grid(row=len(self.layer_pane.grid_slaves()) + 1, column=0, sticky="ew")
 
-        button = tk.Button(layer_frame, text=f"Layer {attribute_name}",
+        layer_name = f"Layer {attribute_name} {str(self.index)}"
+        self.index = self.index + 1
+        component.layer_name = layer_name
+
+        button = tk.Button(layer_frame, text=layer_name,
                            command=lambda comp=component: self.properties_frame.display_component_properties(comp))
+        button.id = "Button"
         button.grid(row=0, column=0, sticky="ew")
+        layer_frame.id = layer_name
 
         component_widget = component.return_component(window=window)
 
@@ -50,13 +58,12 @@ class LayerFrame(Observer):
                 widget.destroy()
 
     def update(self, value):
-        print("TREC")
-        # self.component_list = self.component_tree.create_component_list()
-        # frames = []
-        # for widget in self.layer_pane.winfo_children():
-        #     frames.append(widget)
-        #     widget.pack_forget()
-        # for component in component_list:
-        #     for frames in frames:
-        #         if component
+        component_list = self.component_tree.create_component_list()
+        for child in self.layer_pane.winfo_children():
+            if isinstance(child, tk.Frame) and hasattr(child, "id") and child.id == "Layer":
+                child.grid_forget()
 
+        for component in component_list:
+            for child in self.layer_pane.winfo_children():
+                if isinstance(child, tk.Frame) and child.id == component.layer_name:
+                    child.grid(row=component_list.index(component) + 1, column=0, sticky="ew")

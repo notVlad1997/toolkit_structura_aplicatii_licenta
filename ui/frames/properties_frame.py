@@ -25,7 +25,6 @@ class PropertiesFrame:
     def display_component_properties(self, component):
         self.destroy_property_page()
         found_component = self.find_property_page(component)
-        print(found_component)
         for attribute_name in found_component.attribute_names:
             label = tk.Label(self.properties_pane, text=f"{attribute_name}:")
             label.pack(side=tk.TOP)

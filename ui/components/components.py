@@ -32,5 +32,4 @@ class WindowComponents:
 
     def save_json(self):
         for component in self.components:
-            print(self.components.index(component))
             component.save_to_json(f"{self.components.index(component)}.json")

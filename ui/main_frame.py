@@ -28,7 +28,6 @@ class MainFrame(tk.Frame):
         self.windows_pane = None
 
         self.pack(fill=tk.BOTH, expand=True)
-        self.rows = 1
 
         self.component_list = []
         self.frames_list = []
@@ -39,6 +38,7 @@ class MainFrame(tk.Frame):
         self.current_window_id = -1
         self.ui_create = False
         self.create_menu()
+
     def create_widgets(self):
         """
         Method that implements the whole structure of the UI Interface.
@@ -57,7 +57,8 @@ class MainFrame(tk.Frame):
 
         self.category = CategoryFrame(master=left_pane)
 
-        layer_frame = LayerFrame(master=right_pane, component_tree=self.component_tree, window=self.window, frames_list=self.frames_list)
+        layer_frame = LayerFrame(master=right_pane, component_tree=self.component_tree, window=self.window,
+                                 frames_list=self.frames_list)
 
         self.component = ComponentFrame(master=left_pane, frames_list=self.frames_list,
                                         layer_frame=layer_frame, component_tree=self.component_tree)
@@ -67,14 +68,13 @@ class MainFrame(tk.Frame):
         self.windows_pane.id = "New Windows"
 
         self.component.add_new_component("TK", FrameWindowTK, window=self.window)
-        self.component_tree.traverse()
 
         component_widget = self.component_tree.create_component_list()[0].return_component()
 
-        # self.frames_list.append(component_widget)
         self.window = component_widget
 
-        self.category.create_category_panel(component_frame=self.component, frame_list=self.frames_list, window=self.window)
+        self.category.create_category_panel(component_frame=self.component, frame_list=self.frames_list,
+                                            window=self.window)
 
         self.main_pane.add(left_pane, minsize=200)
         self.main_pane.add(self.middle_pane, minsize=600)
@@ -114,7 +114,7 @@ class MainFrame(tk.Frame):
             self.ui_create = True
 
         new_ui = tk.Button(self.windows_pane, text="Hello")
-                           # , command=lambda index=len(self.windows_buttons):
+        # , command=lambda index=len(self.windows_buttons):
         # self.window_button_pressed(index=index))
         self.windows_buttons.append(new_ui)
         new_ui.pack(side=tk.LEFT, fill=tk.Y)

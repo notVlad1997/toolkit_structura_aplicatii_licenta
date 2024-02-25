@@ -7,7 +7,7 @@ from observers.subject import Subject
 
 
 class ComponentTemplate(Subject):
-    def __init__(self, name, category, frames=None):
+    def __init__(self, name, category, frames=None, layer_name=None):
         """
         Constructor.
         :param name: Name of the class
@@ -20,6 +20,7 @@ class ComponentTemplate(Subject):
         super().__init__()
         self.name = name
         self.master = None
+        self.layer_name = layer_name
 
         self.category = category
 

@@ -9,7 +9,6 @@ class ComponentFrame:
         self.component_pane = ui_util.create_scrollbar_pane(self.master)
         self.frames_list = frames_list
         self.component_tree = component_tree
-        self.component_list = self.component_tree.create_component_list()
         self.layer_frame = layer_frame
 
     def destroy(self):

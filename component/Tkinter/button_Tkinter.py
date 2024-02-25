@@ -38,4 +38,3 @@ class ButtonTkinter(component_template.ComponentTemplate):
             bg=self.attribute_values[self.attribute_names.index("Background Color")],
         )
         self.component.place(anchor=tkinter.CENTER)
-        print(self.master)

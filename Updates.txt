@@ -1,7 +1,3 @@
---FRAMEURI
-Sa se modifice layerele sa afiseze componentele sub frameurile la care se afla
-Sa se actualizeze metoda de schimbare de panouri
-
 --SALVAREA
 Sa se salveze sub forma unui folder bine structurat
 Sa te intrebe unde vrei sa il salvezi
