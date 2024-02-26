@@ -70,12 +70,6 @@ class MainFrame(tk.Frame):
         self.windows_pane.pack(fill=tk.X)
         self.windows_pane.id = "New Windows"
 
-        self.component.add_new_component("TK", FrameWindowTK, window=self.window)
-
-        component_widget = self.component_tree.create_component_list()[0].return_component()
-
-        self.window = component_widget
-
         self.category.create_category_panel(component_frame=self.component, frame_list=self.frames_list,
                                             window=self.window)
 
@@ -116,6 +110,12 @@ class MainFrame(tk.Frame):
             self.create_widgets()
             self.ui_create = True
 
+        self.component.add_new_component("TK", FrameWindowTK, window=self.window)
+
+        component_widget = self.component_tree.create_component_list()[0].return_component()
+
+        self.window = component_widget
+
         new_ui = tk.Button(self.windows_pane, text="Hello")
         # , command=lambda index=len(self.windows_buttons):
         # self.window_button_pressed(index=index))
@@ -145,7 +145,10 @@ class MainFrame(tk.Frame):
             print(f"Datele au fost încărcate din {folder_path}")
 
     def load_from_folder_recursive(self, folder_path, window):
-        last_frame = self.frames_list[-1]
+        if len(self.frames_list) == 0:
+            last_frame = self.middle_pane
+        else:
+            last_frame = self.frames_list[-1]
         for filename in os.listdir(folder_path):
             file_path = os.path.join(folder_path, filename)
 

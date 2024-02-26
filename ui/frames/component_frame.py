@@ -33,6 +33,25 @@ class ComponentFrame:
         else:
             self.component_tree.add_component(component)
 
+    def add_component(self, component, attribute_name, window, element):
+        """
+        Method that adds a new component on the window, it creates a new layer, and stores it.
+        :param component:
+        :param window:
+        :param attribute_name: Name of the attribute, that it will be added to the UI.
+        :param element: Name of the class, that it's going to be added as a new component.
+        :return:
+        """
+        component.register_observer(self.component_tree)
+
+        self.layer_frame.create_new_layer(component=component, attribute_name=attribute_name, window=window)
+        if str(element) == f"<class 'FrameTkinter'>":
+            self.component_tree.add_component(ComponentsTree(value=component))
+        elif str(element) == f"<class 'component.Frame.windowFrame_Custom.FrameWindowTK'>":
+            self.component_tree.value = component
+        else:
+            self.component_tree.add_component(component)
+
     def component_button(self, button_name, class_element, window=None):
         """
         Method that adds all the buttons with the functionality of getting all the components of the category.

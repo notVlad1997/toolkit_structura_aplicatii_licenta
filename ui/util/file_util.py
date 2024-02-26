@@ -44,10 +44,10 @@ def transform_into_component(component_tree, component_frame, file_path, frames_
                             for name, obj in namespace.items():
                                 if inspect.isclass(obj) and issubclass(
                                         obj, ComponentTemplate) and obj != ComponentTemplate:
-                                    class_name = name
                                     instance = obj(frames=None)
                                     print(getattr(instance, 'name', None))
                                     if getattr(instance, 'name', None) == component_name:
+                                        class_name = name
                                         break
 
                             if class_name:
@@ -72,6 +72,7 @@ def create_component(category_name, module_name, class_name, attributes_data, co
     module = importlib.import_module(f"component.{category_name}.{module_name}")
     class_instance = getattr(module, class_name)
     print(class_instance)
+
     component_instance = class_instance(frames_list)
 
     for attribute_data in attributes_data:
@@ -80,4 +81,4 @@ def create_component(category_name, module_name, class_name, attributes_data, co
         component_instance.modify_value(attribute_name=attribute_name,
                                         value=attribute_value)
 
-    component_frame.add_new_component(component_name, class_instance, window)
+    component_frame.add_component(component=component_instance, attribute_name=component_name, window=window, element=class_instance)
