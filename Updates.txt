@@ -4,9 +4,6 @@ Sa se salveze sub forma unui proiect Python care ulterior sa fie modificat
 --ADAUGARE FUNCTIONALITATE
 Sa poti adauga eventuri
 
---OPEN
-Deschiderea unui intreg folder care contine .json-uri
-
 --ADAUGARE ACTIUNI
 Sa poti crea actiuni pentru butoane, drag and drop etc.
 
@@ -14,6 +11,8 @@ Sa poti crea actiuni pentru butoane, drag and drop etc.
 Sa poti sa muti layere
 Sa poti sa dai nume la layere(care ulterior cand se salveaza un fisier sa devina chiar numele fisierului .json)
 Cand modifici frame-uri sa apara numele layerului, nu cel al frameului
+Cand stergi un frame sa stearga si celelalte componente din el
+Sa poti sa dai extend/shrink la frameuri sa apara/nu apara componente
 
 --LIBRARY
 Adaugare suport de a salva functionalitate ca sa fie refolosita
@@ -37,3 +36,5 @@ mai multe tipuri de slidere
 
 --TABELE
 Sa se poata adauga si baze de date
+
+--UI

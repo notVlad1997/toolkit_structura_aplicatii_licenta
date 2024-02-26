@@ -19,10 +19,28 @@ class BarDiagram(component_template.ComponentTemplate):
 
     def update_component(self, window=None):
         if window is not None:
-            self.component = tk.Frame(window)
-            self.component.pack()
-            if self.canvas is not None:
-                self.canvas = FigureCanvasTkAgg(self.fig, master=self.component)
+            if window is not self.master or self.master is None:
+                self.master = window
+                self.component = tk.Frame(self.master)
+                self.component.pack()
+                if self.canvas is not None:
+                    self.canvas = FigureCanvasTkAgg(self.fig, master=self.component)
+        else:
+            if self.frames_choice is not None:
+                frame_name = self.attribute_values[self.attribute_names.index("Frame")]
+                frame = None
+                for fr in self.frames_choice:
+                    if str(frame_name) == str(fr):
+                        frame = fr
+                        break
+                if frame is not self.master and frame is not None:
+                    self.master = frame
+                    self.component.destroy()
+                    self.component = tk.Frame(self.master)
+                    self.component.pack()
+                    if self.canvas is not None:
+                        self.canvas = FigureCanvasTkAgg(self.fig, master=self.component)
+
 
         x_data = self.attribute_values[self.attribute_names.index("X Data")].split(',')
         y_data = [int(value) for value in self.attribute_values[self.attribute_names.index("Y Data")].split(',')]

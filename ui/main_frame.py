@@ -27,7 +27,9 @@ class MainFrame(tk.Frame):
         self.properties = None
 
         self.main_pane = None
+        self.left_pane = None
         self.middle_pane = None
+        self.right_pane = None
         self.windows_pane = None
 
         self.pack(fill=tk.BOTH, expand=True)
@@ -40,42 +42,49 @@ class MainFrame(tk.Frame):
 
         self.current_window_id = -1
         self.ui_create = False
+
         self.create_menu()
 
-    def create_widgets(self):
-        """
-        Method that implements the whole structure of the UI Interface.
-        :return:
-        """
+    def create_panes(self):
         self.main_pane = tk.PanedWindow(self, orient=tk.HORIZONTAL, sashrelief=tk.SUNKEN, sashwidth=7)
         self.main_pane.pack(fill=tk.BOTH, expand=True)
 
-        left_pane = tk.PanedWindow(self.main_pane, orient=tk.VERTICAL, sashrelief=tk.RAISED, sashwidth=7)
+        self.left_pane = tk.PanedWindow(self.main_pane, orient=tk.VERTICAL, sashrelief=tk.RAISED, sashwidth=7)
 
         self.middle_pane = tk.Frame(self.main_pane)
         self.middle_pane.pack_propagate(False)
         self.window = self.middle_pane
 
-        right_pane = tk.PanedWindow(self.main_pane, orient=tk.VERTICAL, sashrelief=tk.RAISED, sashwidth=7)
+        self.right_pane = tk.PanedWindow(self.main_pane, orient=tk.VERTICAL, sashrelief=tk.RAISED, sashwidth=7)
 
-        self.category = CategoryFrame(master=left_pane)
+        self.main_pane.add(self.left_pane, minsize=200)
+        self.main_pane.add(self.middle_pane, minsize=600)
+        self.main_pane.add(self.right_pane, minsize=500)
+    def create_widgets(self, add_new_ui=True):
+        """
+        Method that implements the whole structure of the UI Interface.
+        :return:
+        """
+        self.create_panes()
+        self.category = CategoryFrame(master=self.left_pane)
 
-        layer_frame = LayerFrame(master=right_pane, component_tree=self.component_tree, window=self.window,
+        layer_frame = LayerFrame(master=self.right_pane, component_tree=self.component_tree, window=self.window,
                                  frames_list=self.frames_list)
 
-        self.component = ComponentFrame(master=left_pane, frames_list=self.frames_list,
+        self.component = ComponentFrame(master=self.left_pane, frames_list=self.frames_list,
                                         layer_frame=layer_frame, component_tree=self.component_tree)
 
         self.windows_pane = tk.Frame(self.middle_pane, height=30, highlightbackground="gray60", highlightthickness=1)
         self.windows_pane.pack(fill=tk.X)
         self.windows_pane.id = "New Windows"
 
+        if add_new_ui == True:
+            self.component.add_new_component("TK", FrameWindowTK, window=self.window)
+            component_widget = self.component_tree.create_component_list()[0].return_component()
+            self.window = component_widget
+
         self.category.create_category_panel(component_frame=self.component, frame_list=self.frames_list,
                                             window=self.window)
-
-        self.main_pane.add(left_pane, minsize=200)
-        self.main_pane.add(self.middle_pane, minsize=600)
-        self.main_pane.add(right_pane, minsize=500)
 
     def create_menu(self):
         """
@@ -110,12 +119,6 @@ class MainFrame(tk.Frame):
             self.create_widgets()
             self.ui_create = True
 
-        self.component.add_new_component("TK", FrameWindowTK, window=self.window)
-
-        component_widget = self.component_tree.create_component_list()[0].return_component()
-
-        self.window = component_widget
-
         new_ui = tk.Button(self.windows_pane, text="Hello")
         # , command=lambda index=len(self.windows_buttons):
         # self.window_button_pressed(index=index))
@@ -134,10 +137,11 @@ class MainFrame(tk.Frame):
             self.component_tree.save_to_json_recursive(base_folder=save_folder)
 
     def action_open(self):
-        if self.ui_create is False:
-            self.create_widgets()
-            self.ui_create = True
+
         folder_path = filedialog.askdirectory(title="Select a folder")
+        if self.ui_create is False:
+            self.create_widgets(add_new_ui=False)
+            self.ui_create = True
 
         if folder_path:
             # Dacă utilizatorul a selectat un director, încărcați datele
@@ -155,12 +159,15 @@ class MainFrame(tk.Frame):
             if os.path.isfile(file_path) and filename.endswith(".json"):
                 file_util.transform_into_component(component_tree=self.component_tree, component_frame=self.component,
                                                    file_path=file_path, frames_list=self.frames_list, window=window)
-                if self.frames_list[-1] is not last_frame:
-                    last_frame = self.frames_list[-1]
-                    for filename in os.listdir(folder_path):
-                        folder_path_child = os.path.join(folder_path, filename)
-                        if os.path.isdir(folder_path_child):
-                            self.load_from_folder_recursive(folder_path_child, window=self.frames_list[-1])
+                if len(self.frames_list) != 0:
+                    if self.frames_list[-1] is not last_frame:
+                        last_frame = self.frames_list[-1]
+                        for filename in os.listdir(folder_path):
+                            folder_path_child = os.path.join(folder_path, filename)
+                            if os.path.isdir(folder_path_child):
+                                self.load_from_folder_recursive(folder_path_child, window=self.frames_list[-1])
+                else:
+                    print("Nu ai frame principal")
 
     @staticmethod
     def dummy_function():

@@ -43,7 +43,6 @@ class ComponentFrame:
         :return:
         """
         component.register_observer(self.component_tree)
-
         self.layer_frame.create_new_layer(component=component, attribute_name=attribute_name, window=window)
         if str(element) == f"<class 'FrameTkinter'>":
             self.component_tree.add_component(ComponentsTree(value=component))
