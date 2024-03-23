@@ -3,7 +3,7 @@ import component_template
 
 
 class FrameWindowTK(component_template.ComponentTemplate):
-    def __init__(self, frames):
+    def __init__(self, frames, *args, **kwargs):
         super().__init__(name="WindowFrame", category="Frame", frames=None, visible=False)
         # self.remove_property(attribute_name="Frame")
         self.add_property(name="Width", button_type="slider", default_value=600)

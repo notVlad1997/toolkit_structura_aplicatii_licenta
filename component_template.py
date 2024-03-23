@@ -7,7 +7,7 @@ from observers.subject import Subject
 
 
 class ComponentTemplate(Subject):
-    def __init__(self, name, category, frames=None, layer_name=None, visible=True):
+    def __init__(self, name, category, frames=None, layer_name=None, visible=True, size=None, position=None):
         """
         Constructor.
         :param name: Name of the class
@@ -34,11 +34,19 @@ class ComponentTemplate(Subject):
         self.component = None
         self.color_options = ["white", "black", "red", "green", "blue", "yellow", "purple", "orange"]
 
+        self.visible = visible
+
         if frames is not None:
             self.add_property(name="Frame", button_type="frames", default_value=self.frames_choice)
             self.attribute_values[self.attribute_names.index("Frame")] = str(self.frames_choice[0])
 
-        self.visible = visible
+        if size is not None:
+            self.add_property(name="Width", button_type="slider", default_value=size[0])
+            self.add_property(name="Height", button_type="slider", default_value=size[1])
+
+        if position is not None:
+            self.add_property(name="Position X", button_type="text", default_value=position[0])
+            self.add_property(name="Position Y", button_type="text", default_value=position[1])
 
     def add_property(self, name, button_type, default_value):
         """

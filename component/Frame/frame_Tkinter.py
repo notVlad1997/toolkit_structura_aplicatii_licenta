@@ -3,7 +3,7 @@ import component_template
 
 
 class FrameTkinter(component_template.ComponentTemplate):
-    def __init__(self, frames):
+    def __init__(self, frames, *args, **kwargs):
         super().__init__(name="Frame", category="Frame", frames=frames)
         self.add_property(name="Width", button_type="slider", default_value=300)
         self.add_property(name="Height", button_type="slider", default_value=200)

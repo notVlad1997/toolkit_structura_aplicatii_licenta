@@ -6,7 +6,7 @@ import component_template
 
 
 class BarDiagram(component_template.ComponentTemplate):
-    def __init__(self, frames):
+    def __init__(self, frames, *args, **kwargs):
         super().__init__(name="Bar Color", category="MatplotLib", frames=frames)
         self.add_property(name="X Data", button_type="table", default_value="apple,blueberry,cherry,orange")
         self.add_property(name="Y Data", button_type="table", default_value="40,100,30,55")

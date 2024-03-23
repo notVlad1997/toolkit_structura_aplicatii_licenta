@@ -6,9 +6,9 @@ import tkinter as tk
 from tkinter import ttk
 
 class LabelTkinter(ComponentTemplate):
-    def __init__(self, frames):
+    def __init__(self, frames, *args, **kwargs):
         super().__init__(name="Label", category="Tkinter", frames=frames)
-        self.add_property(name="Text", button_type="text", default_value="")
+        self.add_property(name="Text", button_type="text", default_value="Hello World!")
         self.add_property(name="Font", button_type="text", default_value="Arial")
         self.add_property(name="Foreground Color", button_type="color", default_value="black")
         self.add_property(name="X Position", button_type="slider", default_value=0)

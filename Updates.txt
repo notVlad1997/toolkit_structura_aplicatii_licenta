@@ -1,16 +1,6 @@
 --Buguri
 Cand se sterge o componenta se pare ca nu este eliminita din lista de salvare
 
---SALVAREA
-Sa se salveze sub forma unui proiect Python care ulterior sa fie modificat
-
---ADAUGARE FUNCTIONALITATE
-Sa poti adauga eventuri
-
-
---ADAUGARE ACTIUNI
-Sa poti crea actiuni pentru butoane, drag and drop etc.
-
 --LAYERE
 Sa poti sa muti layere
 Sa poti sa dai nume la layere(care ulterior cand se salveaza un fisier sa devina chiar numele fisierului .json)
@@ -18,10 +8,22 @@ Cand modifici frame-uri sa apara numele layerului, nu cel al frameului
 Cand stergi un frame sa stearga si celelalte componente din el
 Sa poti sa dai extend/shrink la frameuri sa apara/nu apara componente
 
+--SALVAREA
+Sa se salveze sub forma unui proiect Python care ulterior sa fie modificat
+Sa se salveze intr-un singur fisier .json care este format din liste in loc de elemente .json
+
+--ADAUGARE FUNCTIONALITATE
+Sa poti adauga eventuri
+Sa poti muta cu drag and drop elementele in alte frame-uri
+
+--ADAUGARE ACTIUNI
+Sa poti crea actiuni pentru butoane, drag and drop etc.
+
 --LIBRARY
 Adaugare suport de a salva functionalitate ca sa fie refolosita
 
---ADAUGARE COMPONENTE CARE SA NU APARA IN CATEGORY
+--UI
+Sa adaug o pagina de inceput
 
 --REFACTORING
 Componentele sa fie in diferite clase
@@ -39,6 +41,19 @@ UPDATE-URI DRAGUTE
 mai multe tipuri de slidere
 
 --TABELE
-Sa se poata adauga si baze de date
+Sa se poata adauga si baze de date -- NU E TIMP(2)
 
---UI
+
+
+--COMPONENTE
+Sa ai optiunea de a da resize la o componenta
+Duplicate
+
+CE ELEMENTE AR FI ESENTIALIE DE ADAUGAT LA FIECARE COMPONENTA
+CURSOR - cand si unde
+TEXT ALLIGMENT
+OPACITATE
+VIZIBILITATE
+INSETS
+POZITIONARE CU PROCENTE
+POZITIONARE FOLOSIND GRIDURI
