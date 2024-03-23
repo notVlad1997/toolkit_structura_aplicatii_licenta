@@ -1,5 +1,6 @@
 --Buguri
 Cand se sterge o componenta se pare ca nu este eliminita din lista de salvare
+Cand se apasa pe butonul de adaugare componente se adauga compoennta de 2 ori
 
 --LAYERE
 Sa poti sa muti layere

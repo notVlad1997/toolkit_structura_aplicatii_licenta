@@ -5,8 +5,9 @@ import tkinter as tk
 
 from observers.subject import Subject
 
-
 class ComponentTemplate(Subject):
+    focused_component = None
+
     def __init__(self, name, category, frames=None, layer_name=None, visible=True, size=None, position=None):
         """
         Constructor.
@@ -35,6 +36,7 @@ class ComponentTemplate(Subject):
         self.color_options = ["white", "black", "red", "green", "blue", "yellow", "purple", "orange"]
 
         self.visible = visible
+        self.offset = 10
 
         if frames is not None:
             self.add_property(name="Frame", button_type="frames", default_value=self.frames_choice)
@@ -47,6 +49,29 @@ class ComponentTemplate(Subject):
         if position is not None:
             self.add_property(name="Position X", button_type="text", default_value=position[0])
             self.add_property(name="Position Y", button_type="text", default_value=position[1])
+
+        self.focus_canvas = None
+
+    def create_focus_rectangle(self, event):
+        if self.focus_rectangle is None:
+            x = int(self.attribute_values[self.attribute_names.index("Position X")]) - self.offset
+            y = int(self.attribute_values[self.attribute_names.index("Position Y")]) - self.offset
+            width = int(self.attribute_values[self.attribute_names.index("Width")]) + self.offset * 2
+            height = int(self.attribute_values[self.attribute_names.index("Height")]) + self.offset * 2
+
+            self.focus_canvas = tk.Canvas(self.master, width=width, height=height, highlightthickness=0)
+            self.focus_canvas.place(x=x, y=y)
+
+            focus_rectangle = self.focus_canvas.create_rectangle(x, y, x + width, y + height, fill="blue")
+            self.master.update_idletasks()
+            self.component.lift()
+
+            ComponentTemplate.focused_component = self
+
+    def delete_focus_rectangle(self):
+        if ComponentTemplate.focused_component is not self and ComponentTemplate.focused_component is not None:
+            ComponentTemplate.focused_component.focus_canvas.destroy()
+
 
     def add_property(self, name, button_type, default_value):
         """
