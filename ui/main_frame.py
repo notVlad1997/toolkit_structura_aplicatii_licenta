@@ -162,8 +162,8 @@ class MainFrame(tk.Frame):
                 if len(self.frames_list) != 0:
                     if self.frames_list[-1] is not last_frame:
                         last_frame = self.frames_list[-1]
-                        for filename in os.listdir(folder_path):
-                            folder_path_child = os.path.join(folder_path, filename)
+                        for fn in os.listdir(folder_path):
+                            folder_path_child = os.path.join(folder_path, fn)
                             if os.path.isdir(folder_path_child):
                                 self.load_from_folder_recursive(folder_path_child, window=self.frames_list[-1])
                 else:

@@ -53,8 +53,8 @@ def transform_into_component(component_tree, component_frame, file_path, frames_
                             if class_name:
                                 create_component(category_name=category_name, module_name=module_name,
                                                  class_name=class_name, attributes_data=attributes_data,
-                                                 component_name=component_name, component_tree=component_tree,
-                                                 component_frame=component_frame, frames_list=frames_list, window=window)
+                                                 component_name=component_name, component_frame=component_frame,
+                                                 frames_list=frames_list, window=window)
                                 break
 
                         except Exception as e:
@@ -67,11 +67,10 @@ def transform_into_component(component_tree, component_frame, file_path, frames_
             print(f"JSON File Error: {e}")
 
 
-def create_component(category_name, module_name, class_name, attributes_data, component_tree, component_frame,
+def create_component(category_name, module_name, class_name, attributes_data, component_frame,
                      component_name, frames_list, window):
     module = importlib.import_module(f"component.{category_name}.{module_name}")
     class_instance = getattr(module, class_name)
-    print(class_instance)
 
     component_instance = class_instance(frames_list)
 

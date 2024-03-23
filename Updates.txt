@@ -1,8 +1,12 @@
+--Buguri
+Cand se sterge o componenta se pare ca nu este eliminita din lista de salvare
+
 --SALVAREA
 Sa se salveze sub forma unui proiect Python care ulterior sa fie modificat
 
 --ADAUGARE FUNCTIONALITATE
 Sa poti adauga eventuri
+
 
 --ADAUGARE ACTIUNI
 Sa poti crea actiuni pentru butoane, drag and drop etc.
