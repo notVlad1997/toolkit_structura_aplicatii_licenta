@@ -17,22 +17,25 @@ class LayerFrame(Observer):
 
         self.properties_frame = PropertiesFrame(master=self.master, component_tree=self.component_tree)
         self.properties_pane = self.properties_frame.properties_pane
-
+        self.layer_name = None
         self.index = 0
 
     def create_new_layer(self, component, attribute_name, window=None):
         layer_frame = tk.Frame(self.layer_pane)
         layer_frame.grid(row=len(self.layer_pane.grid_slaves()) + 1, column=0, sticky="ew")
 
-        layer_name = f"Layer {attribute_name} {str(self.index)}"
+        self.layer_name = f"Layer {attribute_name} {str(self.index)}"
         self.index = self.index + 1
-        component.layer_name = layer_name
+        component.layer_name = self.layer_name
 
-        button = tk.Button(layer_frame, text=layer_name,
+        space_button = tk.Button(layer_frame, text=" ")
+        space_button.grid(row=0, column=0, sticky="ew")
+
+        button = tk.Button(layer_frame, text=self.layer_name,
                            command=lambda comp=component: self.properties_frame.display_component_properties(comp))
         button.id = "Button"
-        button.grid(row=0, column=0, sticky="ew")
-        layer_frame.id = layer_name
+        button.grid(row=0, column=1, sticky="ew")
+        layer_frame.id = self.layer_name
 
         component_widget = component.return_component(window=window)
 
@@ -40,12 +43,41 @@ class LayerFrame(Observer):
                                   command=lambda comp=component,
                                                  frame=layer_frame: self.delete_layer(component, component_widget,
                                                                                       layer_frame))
-        delete_button.grid(row=0, column=1, sticky="ew")
+        delete_button.grid(row=0, column=2, sticky="ew")
         if (str(type(component)) == f"<class 'FrameTkinter'>" or
                 str(type(component)) == "<class 'component.Frame.frame_Tkinter.FrameTkinter'>" or
                 str(type(component)) == f"<class 'component.Frame.windowFrame_Custom.FrameWindowTK'>" or
                 str(type(component)) == "<class 'component.Frame.windowFrame_Custom.FrameWindowTK'>"):
             self.frames_list.append(component_widget)
+            expand_button = tk.Button(layer_frame, text="Collapse",
+                                      command=lambda frame=layer_frame, comp=component: self.toggle_extend(frame, comp))
+            expand_button.grid(row=0, column=3, sticky="ew")
+
+    def toggle_extend(self, layer_frame, comp):
+        frame_depth = None
+        component_list = self.component_tree.create_component_list_with_depth()
+        for component, depth in component_list:
+            if component == comp:
+                frame_depth = depth
+            elif frame_depth is not None:
+                if depth > frame_depth:
+                    for child in self.layer_pane.winfo_children():
+                        if hasattr(child, "id"):
+                            if isinstance(child, tk.Frame) and child.id == component.layer_name:
+                                if layer_frame.grid_slaves(row=0, column=3)[0]['text'] == "Collapse":
+                                    child.grid_forget()
+                                else:
+                                    child.grid(row=component_list.index([component, depth]) + 1, column=1, sticky="ew")
+                                break
+                else:
+                    break
+
+        if layer_frame.grid_slaves(row=0, column=3)[0]['text'] == "Extend":
+            layer_frame.grid_slaves(row=0, column=3)[0].config(text="Collapse")
+        else:
+            layer_frame.grid_slaves(row=0, column=3)[0].config(text="Extend")
+
+
 
     def delete_layer(self, component, ui_component, layer_button):
         self.component_tree.remove_component(component)
@@ -58,13 +90,18 @@ class LayerFrame(Observer):
                 widget.destroy()
 
     def update(self, value):
-        component_list = self.component_tree.create_component_list()
+        component_list = self.component_tree.create_component_list_with_depth()
         for child in self.layer_pane.winfo_children():
             if isinstance(child, tk.Frame) and hasattr(child, "id") and child.id == "Layer":
                 child.grid_forget()
 
-        for component in component_list:
+        for component, depth in component_list:
             for child in self.layer_pane.winfo_children():
                 if hasattr(child, "id"):
                     if isinstance(child, tk.Frame) and child.id == component.layer_name:
-                        child.grid(row=component_list.index(component) + 1, column=0, sticky="ew")
+                        child.grid(row=component_list.index([component, depth]) + 1, column=1, sticky="ew")
+                        # Adjust the text of space_button based on depth
+                        space_text = " " * (depth * 2)  # Assuming 2 spaces per depth level, adjust as needed
+                        space_button = child.grid_slaves(row=0, column=0)[0]  # Get the space_button
+                        space_button.config(text=space_text)
+                        break

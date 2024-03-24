@@ -1,4 +1,3 @@
-import json
 import os
 
 from component_template import ComponentTemplate
@@ -80,7 +79,16 @@ class ComponentsTree(Observer, Subject):
 
         return component_list
 
-    # Modifică metoda save_to_json_recursive din ComponentsTree
+    def create_component_list_with_depth(self, depth=0):
+        component_list = [[self.value, depth]]
+        for child in self.children:
+            if isinstance(child, ComponentsTree):
+                component_list += child.create_component_list_with_depth(depth=depth+1)
+            else:
+                component_list.append([child, depth + 1])
+
+        return component_list
+
     def save_to_json_recursive(self, base_folder="."):
         """
         Method that saves the UI elemens in .json files structured.
