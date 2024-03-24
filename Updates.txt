@@ -16,9 +16,6 @@ Sa se salveze intr-un singur fisier .json care este format din liste in loc de e
 Sa poti adauga eventuri
 Sa poti muta cu drag and drop elementele in alte frame-uri
 
---ADAUGARE ACTIUNI
-Sa poti crea actiuni pentru butoane, drag and drop etc.
-
 --LIBRARY
 Adaugare suport de a salva functionalitate ca sa fie refolosita
 

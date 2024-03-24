@@ -89,7 +89,7 @@ class LayerFrame(Observer):
                     for child in self.layer_pane.winfo_children():
                         if hasattr(child, "id"):
                             if isinstance(child, tk.Frame) and child.id == component.layer_name:
-                                if layer_frame.grid_slaves(row=0, column=3)[0]['text'] == "Collapse":
+                                if layer_frame.grid_slaves(row=0, column=4)[0]['text'] == "Collapse":
                                     child.grid_forget()
                                 else:
                                     child.grid(row=component_list.index([component, depth]) + 1, column=1, sticky="ew")
@@ -97,10 +97,10 @@ class LayerFrame(Observer):
                 else:
                     break
 
-        if layer_frame.grid_slaves(row=0, column=3)[0]['text'] == "Extend":
-            layer_frame.grid_slaves(row=0, column=3)[0].config(text="Collapse")
+        if layer_frame.grid_slaves(row=0, column=4)[0]['text'] == "Extend":
+            layer_frame.grid_slaves(row=0, column=4)[0].config(text="Collapse")
         else:
-            layer_frame.grid_slaves(row=0, column=3)[0].config(text="Extend")
+            layer_frame.grid_slaves(row=0, column=4)[0].config(text="Extend")
 
     def delete_layer(self, comp, layer_frame):
         frame_depth = None
