@@ -19,7 +19,7 @@ class ComponentFrame:
         for widget in self.component_pane.winfo_children():
             widget.destroy()
 
-    def add_new_component(self, attribute_name, element, window, position=[0, 0]):
+    def add_new_component(self, attribute_name, element, window, position=[-1000, -1000]):
         """
         Method that adds a new component on the window, it creates a new layer, and stores it.
         :param attribute_name: Name of the attribute, that it will be added to the UI.
@@ -62,8 +62,7 @@ class ComponentFrame:
         :param class_element: The class of the component
         :return:
         """
-        button = tk.Button(self.component_pane, text=button_name,
-                           command=lambda name=button_name: self.add_new_component(name, class_element, window=window))
+        button = tk.Button(self.component_pane, text=button_name)
         button.pack(side=tk.TOP)
 
         button.bind("<ButtonPress-1>",
@@ -90,7 +89,6 @@ class ComponentFrame:
         component = element(self.frames_list)
         component.register_observer(self.component_tree)
         component_window = component.return_component(window=window)
-        component_window.place(x=x, y=y)
         self.current_component = component
         self.current_component_window = component_window
         self.window = window
@@ -104,4 +102,6 @@ class ComponentFrame:
             x_window_root, y_window_root = self.window.winfo_rootx(), self.window.winfo_rooty()
             x_window = x_cursor_root - x_window_root
             y_window = y_cursor_root - y_window_root
-            self.add_new_component(attribute_name=button_name, element=class_element, window=window, position=[x_window, y_window])
+            if x_window > 0 and y_window > 0 :
+                self.add_new_component(attribute_name=button_name, element=class_element, window=window, position=[x_window, y_window])
+

@@ -81,7 +81,7 @@ class ComponentTemplate(Subject):
                 ComponentTemplate.focused_component.focus_canvas.destroy()
                 ComponentTemplate.focused_component.component.unbind("<ButtonPress-1>")
                 ComponentTemplate.focused_component.component.unbind("<B1-Motion>")
-            else:
+            elif self.focus_canvas is not None:
                 self.focus_canvas.destroy()
                 self.component.unbind("<ButtonPress-1>")
                 self.component.unbind("<B1-Motion>")
@@ -98,7 +98,8 @@ class ComponentTemplate(Subject):
         component_delta_x = self.start_x - self.offset
         component_delta_y = self.start_y - self.offset
 
-        if component_delta_y < 10 or component_delta_y > int(self.attribute_values[self.attribute_names.index("Height")]) and component_delta_x > 10 and component_delta_x < int(self.attribute_values[self.attribute_names.index("Width")]):
+        if component_delta_y < 10 or component_delta_y > int(self.attribute_values[self.attribute_names.index("Height")]) and 10 < component_delta_x < int(
+                self.attribute_values[self.attribute_names.index("Width")]):
             if component_delta_y <= 0:
                 new_height = max(int(self.attribute_values[self.attribute_names.index("Height")]) - delta_y, 0)
                 self.attribute_values[self.attribute_names.index("Height")] = new_height
@@ -120,18 +121,20 @@ class ComponentTemplate(Subject):
     def stop_resize(self, event):
         self.component.bind("<ButtonPress-1>", self.start_drag)
         self.component.bind("<B1-Motion>", self.drag)
+
     def start_drag(self, event):
         self.start_x = event.x
         self.start_y = event.y
 
     def drag(self, event):
-        delta_x = event.x - self.start_x
-        delta_y = event.y - self.start_y
-        self.attribute_values[self.attribute_names.index("Position X")] = int(
-            self.attribute_values[self.attribute_names.index("Position X")]) + delta_x
-        self.attribute_values[self.attribute_names.index("Position Y")] = int(
-            self.attribute_values[self.attribute_names.index("Position Y")]) + delta_y
-        self.update_component()
+        if hasattr(self, "start_x"):
+            delta_x = event.x - self.start_x
+            delta_y = event.y - self.start_y
+            self.attribute_values[self.attribute_names.index("Position X")] = int(
+                self.attribute_values[self.attribute_names.index("Position X")]) + delta_x
+            self.attribute_values[self.attribute_names.index("Position Y")] = int(
+                self.attribute_values[self.attribute_names.index("Position Y")]) + delta_y
+            self.update_component()
 
     def add_property(self, name, button_type, default_value):
         """

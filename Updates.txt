@@ -1,14 +1,12 @@
 --Buguri
-Cand se sterge o componenta se pare ca nu este eliminita din lista de salvare
-Cand se apasa pe butonul de adaugare componente se adauga compoennta de 2 ori
-Cand se sterge o componenta care are focus nu se sterge focusul
+Cand se adauga o componenta si se tine apasat pe buton, pentru o secunda componenta apare pe main window.
+Marime componente dreapta, si jos se misca ciudat
 
---Componente
+--COMPONENTE
 Sa aiba o actiune in care cand dai drop sa stie automat sa isi selecteze layerul
 
 --LAYERE
 Sa poti sa muti layere
-Cand apesi pe un layer sa apara ca este selectat
 
 --SALVAREA
 Sa se salveze sub forma unui proiect Python care ulterior sa fie modificat
@@ -44,8 +42,6 @@ mai multe tipuri de slidere
 
 --TABELE
 Sa se poata adauga si baze de date -- NU E TIMP(2)
-
-
 
 --COMPONENTE
 Duplicate

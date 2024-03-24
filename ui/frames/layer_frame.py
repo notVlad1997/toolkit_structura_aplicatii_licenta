@@ -5,6 +5,8 @@ from ui.util import ui_util
 
 
 class LayerFrame(Observer):
+    layer_selected = None
+
     def __init__(self, master, component_tree, window, frames_list):
         self.master = master
         self.layer_pane = ui_util.create_scrollbar_pane(self.master)
@@ -33,6 +35,7 @@ class LayerFrame(Observer):
 
         button = tk.Button(layer_frame, text=layer_name,
                            command=lambda comp=component: self.properties_frame.display_component_properties(comp))
+        button.bind("<Button-1>", lambda event, frame=layer_frame: self.layer_pressed(layer_frame))
         button.grid(row=0, column=1, sticky="ew")
         layer_frame.id = layer_name
 
@@ -74,7 +77,6 @@ class LayerFrame(Observer):
             layer_frame.grid_slaves(row=0, column=1)[0].grid_forget()
             button.grid(row=0, column=1, sticky="ew")
             layer_frame.grid_slaves(row=0, column=2)[0].config(text="Rename")
-
 
     def toggle_extend(self, layer_frame, comp):
         frame_depth = None
@@ -118,7 +120,6 @@ class LayerFrame(Observer):
                 else:
                     break
 
-
     def destroy(self):
         for widget in self.layer_pane.winfo_children():
             if not isinstance(widget, tk.Scrollbar):
@@ -140,3 +141,11 @@ class LayerFrame(Observer):
                         space_button = child.grid_slaves(row=0, column=0)[0]  # Get the space_button
                         space_button.config(text=space_text)
                         break
+
+    def layer_pressed(self, layer_frame):
+        if LayerFrame.layer_selected is not None and LayerFrame.layer_selected is not self:
+            for child in LayerFrame.layer_selected.winfo_children():
+                child.config(bg="SystemButtonFace")
+        for child in layer_frame.winfo_children():
+            child.config(bg="cyan")
+        LayerFrame.layer_selected = layer_frame
