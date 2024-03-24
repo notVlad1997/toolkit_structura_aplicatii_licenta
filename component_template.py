@@ -37,7 +37,7 @@ class ComponentTemplate(Subject):
         self.color_options = [None, "white", "black", "red", "green", "blue", "yellow", "purple", "orange"]
 
         self.visible = visible
-        self.offset = 10
+        self.offset = 15
 
         if frames is not None:
             self.add_property(name="Frame", button_type="frames", default_value=self.frames_choice)
@@ -64,6 +64,13 @@ class ComponentTemplate(Subject):
         self.focus_canvas = tk.Canvas(self.master, width=width, height=height, highlightthickness=0)
         self.focus_canvas.place(x=x, y=y)
 
+        self.focus_canvas.bind("<ButtonPress-1>", self.start_resize)
+        self.focus_canvas.bind("<B1-Motion>", self.resize)
+        self.focus_canvas.bind("<ButtonRelease-1>", self.stop_resize)
+
+        self.component.bind("<ButtonPress-1>", self.start_drag)
+        self.component.bind("<B1-Motion>", self.drag)
+
         focus_rectangle = self.focus_canvas.create_rectangle(0, 0, width, height, fill="blue")
         self.master.update_idletasks()
         self.component.lift()
@@ -72,9 +79,59 @@ class ComponentTemplate(Subject):
         if ComponentTemplate.focused_component is not None:
             if ComponentTemplate.focused_component.focus_canvas is not None and ComponentTemplate.focused_component.focus_canvas is not self:
                 ComponentTemplate.focused_component.focus_canvas.destroy()
+                ComponentTemplate.focused_component.component.unbind("<ButtonPress-1>")
+                ComponentTemplate.focused_component.component.unbind("<B1-Motion>")
             else:
                 self.focus_canvas.destroy()
+                self.component.unbind("<ButtonPress-1>")
+                self.component.unbind("<B1-Motion>")
         ComponentTemplate.focused_component = self
+
+    def start_resize(self,event):
+        self.start_x = event.x
+        self.start_y = event.y
+
+    def resize(self, event):
+        delta_x = event.x - self.start_x
+        delta_y = event.y - self.start_y
+
+        component_delta_x = self.start_x - self.offset
+        component_delta_y = self.start_y - self.offset
+
+        if component_delta_y < 10 or component_delta_y > int(self.attribute_values[self.attribute_names.index("Height")]) and component_delta_x > 10 and component_delta_x < int(self.attribute_values[self.attribute_names.index("Width")]):
+            if component_delta_y <= 0:
+                new_height = max(int(self.attribute_values[self.attribute_names.index("Height")]) - delta_y, 0)
+                self.attribute_values[self.attribute_names.index("Height")] = new_height
+                self.attribute_values[self.attribute_names.index("Position Y")] += delta_y
+            elif component_delta_y > 0:
+                new_height = max(int(self.attribute_values[self.attribute_names.index("Height")]) + delta_y, 0)
+                self.attribute_values[self.attribute_names.index("Height")] = new_height
+        else:
+            if component_delta_x <= 0:
+                new_width = max(int(self.attribute_values[self.attribute_names.index("Width")]) - delta_x, 0)
+                self.attribute_values[self.attribute_names.index("Width")] = new_width
+                self.attribute_values[self.attribute_names.index("Position X")] += delta_x
+            elif component_delta_x > 0:
+                new_height = max(int(self.attribute_values[self.attribute_names.index("Width")]) + delta_x, 0)
+                self.attribute_values[self.attribute_names.index("Width")] = new_height
+
+        self.update_component()
+
+    def stop_resize(self, event):
+        self.component.bind("<ButtonPress-1>", self.start_drag)
+        self.component.bind("<B1-Motion>", self.drag)
+    def start_drag(self, event):
+        self.start_x = event.x
+        self.start_y = event.y
+
+    def drag(self, event):
+        delta_x = event.x - self.start_x
+        delta_y = event.y - self.start_y
+        self.attribute_values[self.attribute_names.index("Position X")] = int(
+            self.attribute_values[self.attribute_names.index("Position X")]) + delta_x
+        self.attribute_values[self.attribute_names.index("Position Y")] = int(
+            self.attribute_values[self.attribute_names.index("Position Y")]) + delta_y
+        self.update_component()
 
     def add_property(self, name, button_type, default_value):
         """

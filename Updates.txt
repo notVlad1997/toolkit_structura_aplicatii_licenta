@@ -47,7 +47,6 @@ Sa se poata adauga si baze de date -- NU E TIMP(2)
 
 
 --COMPONENTE
-Sa ai optiunea de a da resize la o componenta
 Duplicate
 
 CE ELEMENTE AR FI ESENTIALIE DE ADAUGAT LA FIECARE COMPONENTA
