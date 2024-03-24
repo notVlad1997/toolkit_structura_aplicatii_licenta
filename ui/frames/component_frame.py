@@ -12,8 +12,6 @@ class ComponentFrame:
         self.layer_frame = layer_frame
         self.current_component_window = None
         self.window = None
-
-        # Legați evenimentul de mutare a cursorului la întreaga fereastră
         self.current_component = None
         self.master.bind("<Motion>", self.on_motion)
 

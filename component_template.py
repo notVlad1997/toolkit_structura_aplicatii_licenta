@@ -5,6 +5,7 @@ import tkinter as tk
 
 from observers.subject import Subject
 
+
 class ComponentTemplate(Subject):
     focused_component = None
 
@@ -33,7 +34,7 @@ class ComponentTemplate(Subject):
         self.frames_choice = frames
 
         self.component = None
-        self.color_options = ["white", "black", "red", "green", "blue", "yellow", "purple", "orange"]
+        self.color_options = [None, "white", "black", "red", "green", "blue", "yellow", "purple", "orange"]
 
         self.visible = visible
         self.offset = 10
@@ -53,31 +54,33 @@ class ComponentTemplate(Subject):
         self.focus_canvas = None
 
     def create_focus_rectangle(self, event):
-        if self.focus_rectangle is None:
-            x = int(self.attribute_values[self.attribute_names.index("Position X")]) - self.offset
-            y = int(self.attribute_values[self.attribute_names.index("Position Y")]) - self.offset
-            width = int(self.attribute_values[self.attribute_names.index("Width")]) + self.offset * 2
-            height = int(self.attribute_values[self.attribute_names.index("Height")]) + self.offset * 2
+        self.delete_focus_rectangle()
 
-            self.focus_canvas = tk.Canvas(self.master, width=width, height=height, highlightthickness=0)
-            self.focus_canvas.place(x=x, y=y)
+        x = int(self.attribute_values[self.attribute_names.index("Position X")]) - self.offset
+        y = int(self.attribute_values[self.attribute_names.index("Position Y")]) - self.offset
+        width = int(self.attribute_values[self.attribute_names.index("Width")]) + self.offset * 2
+        height = int(self.attribute_values[self.attribute_names.index("Height")]) + self.offset * 2
 
-            focus_rectangle = self.focus_canvas.create_rectangle(x, y, x + width, y + height, fill="blue")
-            self.master.update_idletasks()
-            self.component.lift()
+        self.focus_canvas = tk.Canvas(self.master, width=width, height=height, highlightthickness=0)
+        self.focus_canvas.place(x=x, y=y)
 
-            ComponentTemplate.focused_component = self
+        focus_rectangle = self.focus_canvas.create_rectangle(0, 0, width, height, fill="blue")
+        self.master.update_idletasks()
+        self.component.lift()
 
     def delete_focus_rectangle(self):
-        if ComponentTemplate.focused_component is not self and ComponentTemplate.focused_component is not None:
-            ComponentTemplate.focused_component.focus_canvas.destroy()
-
+        if ComponentTemplate.focused_component is not None:
+            if ComponentTemplate.focused_component.focus_canvas is not None and ComponentTemplate.focused_component.focus_canvas is not self:
+                ComponentTemplate.focused_component.focus_canvas.destroy()
+            else:
+                self.focus_canvas.destroy()
+        ComponentTemplate.focused_component = self
 
     def add_property(self, name, button_type, default_value):
         """
         Method which will add a new attribute, that can be modified.
         :param name: The name of the property that will be shown in the UI app.
-        :param button_type: The name of the input type that will be used in the UI.
+        :param button_type: The name of the input type that will be used in thce UI.
         :param default_value: The default value for the new item added.
         :return:
         """
@@ -230,7 +233,6 @@ class ComponentTemplate(Subject):
         :return:
         """
         self.attribute_values[index] = self.update_attribute[index].get()
-        #self.show_properties()
         self.update_component()
         self.notify_observers(self)
 
@@ -263,7 +265,9 @@ class ComponentTemplate(Subject):
         :param window: The window_frame which is going to be placed, in most cases TK, or WindowFrame.
         :return:
         """
-        print('Nothing')
+        if self.focus_canvas is not None:
+            self.delete_focus_rectangle()
+            self.create_focus_rectangle(event=None)
 
     def remove_property(self, attribute_name):
         """
