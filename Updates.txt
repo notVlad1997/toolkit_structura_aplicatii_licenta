@@ -1,11 +1,14 @@
 --Buguri
 Cand se sterge o componenta se pare ca nu este eliminita din lista de salvare
 Cand se apasa pe butonul de adaugare componente se adauga compoennta de 2 ori
+Cand se sterge o componenta care are focus nu se sterge focusul
+
+--Componente
+Sa aiba o actiune in care cand dai drop sa stie automat sa isi selecteze layerul
 
 --LAYERE
 Sa poti sa muti layere
-Sa poti sa dai nume la layere(care ulterior cand se salveaza un fisier sa devina chiar numele fisierului .json)
-Cand stergi un frame sa stearga si celelalte componente din el
+Cand apesi pe un layer sa apara ca este selectat
 
 --SALVAREA
 Sa se salveze sub forma unui proiect Python care ulterior sa fie modificat
@@ -25,7 +28,7 @@ Adaugare suport de a salva functionalitate ca sa fie refolosita
 Sa adaug o pagina de inceput
 
 --REFACTORING
-Componentele sa fie in diferite clase
+Proprietatile sa fie in diferite clase
 Modalitatile de salvare sa fie in diferite clase
 
 EXTRA

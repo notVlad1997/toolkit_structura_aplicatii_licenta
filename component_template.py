@@ -340,3 +340,15 @@ class ComponentTemplate(Subject):
                 del self.update_attribute[index]
         else:
             print(f"Property '{attribute_name}' not found in the list of attributes.")
+
+    def destroy(self):
+        """
+        Method to destroy the component UI element and associated resources.
+        """
+        if self.component is not None:
+            self.component.destroy()
+            self.component = None
+        if self.focus_canvas is not None:
+            self.focus_canvas.destroy()
+            self.focus_canvas = None
+

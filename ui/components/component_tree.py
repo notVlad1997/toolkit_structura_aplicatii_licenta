@@ -19,6 +19,14 @@ class ComponentsTree(Observer, Subject):
         self.children = [child for child in self.children
                          if child is not child_node]
 
+    def remove_component_branch(self, branch_node):
+        if branch_node in self.children:
+            self.children.remove(branch_node)
+        else:
+            for child in self.children:
+                if isinstance(child, ComponentsTree):
+                    child.remove_component_branch(branch_node)
+
     def traverse(self, tabs=0):
         for i in range(0, tabs):
             print("  ", end="")

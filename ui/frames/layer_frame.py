@@ -17,33 +17,36 @@ class LayerFrame(Observer):
 
         self.properties_frame = PropertiesFrame(master=self.master, component_tree=self.component_tree)
         self.properties_pane = self.properties_frame.properties_pane
-        self.layer_name = None
+
         self.index = 0
 
     def create_new_layer(self, component, attribute_name, window=None):
         layer_frame = tk.Frame(self.layer_pane)
         layer_frame.grid(row=len(self.layer_pane.grid_slaves()) + 1, column=0, sticky="ew")
 
-        self.layer_name = f"Layer {attribute_name} {str(self.index)}"
+        layer_name = f"Layer {attribute_name} {str(self.index)}"
         self.index = self.index + 1
-        component.layer_name = self.layer_name
+        component.layer_name = layer_name
 
         space_button = tk.Button(layer_frame, text=" ")
         space_button.grid(row=0, column=0, sticky="ew")
 
-        button = tk.Button(layer_frame, text=self.layer_name,
+        button = tk.Button(layer_frame, text=layer_name,
                            command=lambda comp=component: self.properties_frame.display_component_properties(comp))
-        button.id = "Button"
         button.grid(row=0, column=1, sticky="ew")
-        layer_frame.id = self.layer_name
+        layer_frame.id = layer_name
+
+        rename_button = tk.Button(layer_frame, text="Rename",
+                                  command=lambda frame=layer_frame, comp=component: self.rename_entry(frame, comp))
+        rename_button.grid(row=0, column=2, sticky="ew")
 
         component_widget = component.return_component(window=window)
 
         delete_button = tk.Button(layer_frame, text="Delete",
                                   command=lambda comp=component,
-                                                 frame=layer_frame: self.delete_layer(component, component_widget,
+                                                 frame=layer_frame: self.delete_layer(component,
                                                                                       layer_frame))
-        delete_button.grid(row=0, column=2, sticky="ew")
+        delete_button.grid(row=0, column=3, sticky="ew")
         if (str(type(component)) == f"<class 'FrameTkinter'>" or
                 str(type(component)) == "<class 'component.Frame.frame_Tkinter.FrameTkinter'>" or
                 str(type(component)) == f"<class 'component.Frame.windowFrame_Custom.FrameWindowTK'>" or
@@ -51,7 +54,27 @@ class LayerFrame(Observer):
             self.frames_list.append(component_widget)
             expand_button = tk.Button(layer_frame, text="Collapse",
                                       command=lambda frame=layer_frame, comp=component: self.toggle_extend(frame, comp))
-            expand_button.grid(row=0, column=3, sticky="ew")
+            expand_button.grid(row=0, column=4, sticky="ew")
+
+    def rename_entry(self, layer_frame, component):
+        """
+        Method to toggle between displaying the entry field for renaming and hiding it.
+        """
+        if layer_frame.grid_slaves(row=0, column=2)[0]['text'] == "Rename":
+            rename_entry = tk.Entry(layer_frame)
+            rename_entry.insert(0, layer_frame.grid_slaves(row=0, column=1)[0]['text'])
+            layer_frame.grid_slaves(row=0, column=1)[0].grid_forget()
+            rename_entry.grid(row=0, column=1, sticky="ew")
+            layer_frame.grid_slaves(row=0, column=2)[0].config(text="Confirm")
+        else:
+            component.layer_name = layer_frame.grid_slaves(row=0, column=1)[0].get()
+            button = tk.Button(layer_frame, text=component.layer_name,
+                               command=lambda comp=component: self.properties_frame.display_component_properties(comp))
+            component_list = self.component_tree.create_component_list()
+            layer_frame.grid_slaves(row=0, column=1)[0].grid_forget()
+            button.grid(row=0, column=1, sticky="ew")
+            layer_frame.grid_slaves(row=0, column=2)[0].config(text="Rename")
+
 
     def toggle_extend(self, layer_frame, comp):
         frame_depth = None
@@ -77,12 +100,24 @@ class LayerFrame(Observer):
         else:
             layer_frame.grid_slaves(row=0, column=3)[0].config(text="Extend")
 
+    def delete_layer(self, comp, layer_frame):
+        frame_depth = None
+        component_list = self.component_tree.create_component_list_with_depth()
+        for component, depth in component_list:
+            if component == comp:
+                frame_depth = depth
+                component.destroy()
+                layer_frame.destroy()
+            elif frame_depth is not None:
+                if depth > frame_depth:
+                    for child in self.layer_pane.winfo_children():
+                        if hasattr(child, "id"):
+                            if isinstance(child, tk.Frame) and child.id == component.layer_name:
+                                child.destroy()
+                                component.destroy()
+                else:
+                    break
 
-
-    def delete_layer(self, component, ui_component, layer_button):
-        self.component_tree.remove_component(component)
-        layer_button.destroy()
-        ui_component.destroy()
 
     def destroy(self):
         for widget in self.layer_pane.winfo_children():
