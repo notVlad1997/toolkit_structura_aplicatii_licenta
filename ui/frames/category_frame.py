@@ -7,6 +7,7 @@ from ui.util import ui_util
 
 
 class CategoryFrame:
+    category_selected = None
     def __init__(self, master):
         self.master = master
         self.category_pane = ui_util.create_scrollbar_pane(self.master)
@@ -24,6 +25,7 @@ class CategoryFrame:
             button = tk.Button(self.category_pane, text=folder,
                                command=lambda f=folder: self.category_clicked(f, component_frame, frame_list, window=window))
             button.pack(side=tk.TOP)
+            button.bind("<Button-1>", lambda event, b=button: self.category_pressed(b))
 
         return self.category_pane
 
@@ -80,3 +82,9 @@ class CategoryFrame:
                 component_instance = obj(frame_list)
                 if component_instance.visible is True:
                     component_frame.component_button(component_instance.name, obj, window=window)
+
+    def category_pressed(self, category_button):
+        if CategoryFrame.category_selected is not None and CategoryFrame.category_selected is not self:
+            CategoryFrame.category_selected.config(bg="SystemButtonFace")
+        category_button.config(bg="cyan")
+        CategoryFrame.category_selected = category_button
